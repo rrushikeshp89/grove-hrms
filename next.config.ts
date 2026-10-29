@@ -1,9 +1,9 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  // Until sign-in lands in Phase 2, the design system is the front door.
-  async redirects() {
-    return [{ source: "/", destination: "/design", permanent: false }];
+  experimental: {
+    // forbidden() renders app/forbidden.tsx when a role lacks access.
+    authInterrupts: true,
   },
   cacheComponents: true,
   partialPrefetching: true,

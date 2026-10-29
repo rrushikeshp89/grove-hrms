@@ -57,8 +57,17 @@ export function DropdownMenuItem({
       )}
       {...props}
     >
-      {children}
-      {shortcut && <span className="ml-auto pl-4 text-caption text-ink-subtle">{shortcut}</span>}
+      {/* asChild (e.g. wrapping a Link) needs exactly one child to slot onto */}
+      {props.asChild ? (
+        children
+      ) : (
+        <>
+          {children}
+          {shortcut && (
+            <span className="ml-auto pl-4 text-caption text-ink-subtle">{shortcut}</span>
+          )}
+        </>
+      )}
     </MenuPrimitive.Item>
   );
 }

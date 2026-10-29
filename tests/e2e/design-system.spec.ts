@@ -2,6 +2,8 @@ import AxeBuilder from "@axe-core/playwright";
 import { expect, test, type Page } from "@playwright/test";
 
 const PAGES = [
+  { path: "/login", heading: "Welcome back" },
+  { path: "/forgot-password", heading: "Forgot your password?" },
   { path: "/design", heading: "Foundations" },
   { path: "/design/components", heading: "Components" },
   { path: "/design/data", heading: "Data & charts" },
@@ -36,9 +38,14 @@ test.describe("design system pages", () => {
     });
   }
 
-  test("the root redirects to the design system", async ({ page }) => {
+  test("the root sends signed-out visitors to sign in", async ({ page }) => {
     await page.goto("/");
-    await expect(page).toHaveURL(/\/design$/);
+    await expect(page).toHaveURL(/\/login$/);
+  });
+
+  test("the design system stays public", async ({ page }) => {
+    await page.goto("/design");
+    await expect(page.getByRole("link", { name: "Open Grove" })).toBeVisible();
   });
 });
 

@@ -1,6 +1,6 @@
 # Grove HRMS: Build Plan
 
-> Status: **approved 2026-10-29** with the decisions in §6. Phase 1 in progress.
+> Status: **approved 2026-10-29** with the decisions in §6. Phases 1–2 complete.
 
 Contents
 
@@ -519,6 +519,7 @@ Every phase ends the same way: typecheck, lint and tests pass with zero errors, 
 - `can()` with unit tests across the permission matrix, plus the `createAction` wrapper and audit writer.
 - Playwright: logging in as each role.
 - _Review:_ /login demo buttons, reset flow, and that each role sees different navigation.
+- _As built:_ the seed covers the organization (8 departments, 102 current employees and 9 who left in the last year), sign-in accounts, leave types and policies, and 2025–26 holidays. Each later phase adds its module's 12-month history as its own seed step, so that history goes through the same business logic the phase introduces (for example, the leave ledger in Phase 4). Phase 2 also added a role-aware Home, Settings (profile, appearance, password, sessions) and a read-only Roles & access matrix.
 
 **Phase 3: People**
 

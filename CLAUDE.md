@@ -11,7 +11,9 @@ We build one phase at a time; each phase ends with typecheck + lint + tests gree
 - `npm run check`: typecheck + lint + unit tests. Must be clean before any commit.
 - `npm run typecheck`: runs `next typegen` first (needed for `LayoutProps`/`PageProps`)
 - `npm test`: Vitest, `src/**/*.test.ts`, node environment
-- `npm run test:e2e`: Playwright (builds and serves on :3100; desktop + Pixel 7 projects, axe scans in both themes)
+- `npm run test:e2e`: Playwright (builds and serves on :3100; desktop + Pixel 7 projects, axe scans in both themes). Needs `DATABASE_URL`; global setup reseeds a local DB first.
+- `npm run db:migrate` (deploy migrations), `npm run db:seed` (truncate + rebuild Northwind Grove), `npm run db:generate`
+- New migration: edit `prisma/schema.prisma`, then `npx prisma migrate dev --name <change>` against a dev DB (or `prisma migrate diff --from-config-datasource --to-schema prisma/schema.prisma --script` when no shadow DB is available)
 - `npm run format`: Prettier with the Tailwind class sorter
 
 ## Stack notes (versions matter)
@@ -23,6 +25,9 @@ We build one phase at a time; each phase ends with typecheck + lint + tests gree
 - Zod 4 (`{ error: "…" }` messages), React Hook Form with `@hookform/resolvers/zod`.
 - react-day-picker v10, Recharts 3, Motion (`motion/react`), radix-ui (unified package), cmdk.
 - Theme, density and sidebar state live on `<html>`, set before paint by `preferencesScript` (`lib/preferences.ts`). Read them with `useTheme()` and `useHtmlData()`. There is no next-themes.
+- Prisma 7 (`prisma-client` generator → `src/generated/prisma`, gitignored, regenerated on `postinstall`), config in `prisma.config.ts` (loads `.env.local`). The client in `lib/db.ts` is lazy, so builds don't need credentials.
+- Better Auth 1.7 (`lib/auth.ts`): email/password, DB sessions with a 5-minute cookie cache, `nextCookies()` last. Sign-up is disabled; accounts come from the seed or HR. Demo accounts can't change or reset passwords (before-hook).
+- `forbidden()` is enabled via `experimental.authInterrupts`; `app/forbidden.tsx` renders it.
 - npm only (pnpm isn't installed). Ask before adding any major dependency not listed in `docs/PLAN.md` §5.
 
 ## Structure
@@ -32,7 +37,11 @@ src/app/                 routes; route-local pieces in _components/
 src/components/ui/       design-system primitives (Radix + cva, styled from scratch)
 src/components/shell/    AppShell, Sidebar, CommandPalette, ShortcutSheet, PageHeader
 src/components/charts/   themed Recharts wrappers with a table fallback (ChartCard)
-src/features/<module>/   (Phase 2+) components/, queries.ts, actions.ts, schemas.ts, logic/
+src/features/<module>/   components/, queries.ts (server-only reads), actions.ts ("use server"), schemas.ts (shared Zod), logic/
+src/server/              session.ts (DAL: getCurrentUser/requireUser/requirePermission), action.ts (createAction),
+                         authz.ts (managerChain, reportIds, assertCan, visibleEmployeeIds)
+src/proxy.ts             optimistic cookie redirects only; never the security boundary
+prisma/                  schema.prisma, migrations/, seed/ (deterministic; named demo people in seed/people.ts)
 src/config/navigation.ts nav groups; only routes that exist; navigationFor(role)
 src/lib/                 pure helpers (format, shortcuts, command-filter, preferences, motion)
 src/styles/tokens.test.ts WCAG contrast + token-discipline guard
@@ -58,11 +67,17 @@ tests/e2e/               Playwright
 
 ## Patterns
 
+- **Auth and data access.** Pages/components that read the session must sit inside `<Suspense>` (Cache Components). Use `requireUser()` / `requirePermission(p)` from `server/session.ts`; never trust the client. Gate a whole page once, inside one Suspense child, before streaming role-specific content.
+- **Mutations.** Always `createAction({ schema, permission?, handler })`: authenticate → Zod → role check → transaction with queued `audit(...)` entries. Inside handlers use `assertCan(user, permission, ownerEmployeeId)` for record-level (team/own) checks, and throw `ActionError` for user-facing failures. Return values are `ActionResult<T>`.
+- **RBAC.** Permissions and scopes live in `lib/rbac.ts` (`can`, `GRANTS`). Navigation items declare a `permission`, not role lists. Filter queries in SQL via `visibleEmployeeIds`.
+- **Seed.** Add each module's history as its own step under `prisma/seed/`. Keep it deterministic (`createRng(SEED)`); everyone uses `DEMO_PASSWORD`.
+
 - Register palette commands and shortcuts with `useRegisterActions([...])` (memoized). One registry feeds the palette, the key handler and the `?` sheet. Single-key shortcuts are ignored while typing; set `global: true` only for modifier chords.
 - In e2e tests, use `pressUntil` for keyboard shortcuts, because they only attach after hydration.
 - Money is stored in integer minor units (paise) and formatted with `formatMoney`. Dates use date-fns with the `en-IN` locale.
 
 ## Environment
 
-- Supabase Postgres (Phase 2+). The runtime uses the pooled URL (:6543) and migrations use the direct URL (:5432), both in `.env.local` (never committed; see `.env.example`).
+- Supabase Postgres. The runtime uses the pooled URL (:6543, `DATABASE_URL`) and migrations/seed use the direct URL (:5432, `DIRECT_URL`), both in `.env.local` (never committed; see `.env.example`).
+- Without Supabase credentials, a local stand-in works: run PGlite's socket server (`@electric-sql/pglite-socket`, installed outside the repo) on :54329 and set `DATABASE_URL=postgresql://postgres:postgres@127.0.0.1:54329/postgres?sslmode=disable` plus `DATABASE_POOL_MAX=1` (PGlite interleaves concurrent connections).
 - GitHub remote: `rrushikeshp89/grove-hrms` (private).

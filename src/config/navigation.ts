@@ -1,13 +1,23 @@
-import { Blocks, LayoutTemplate, Palette, Table2, type LucideIcon } from "lucide-react";
+import {
+  Blocks,
+  House,
+  LayoutTemplate,
+  Palette,
+  Settings,
+  ShieldCheck,
+  Table2,
+  type LucideIcon,
+} from "lucide-react";
 
+import { can, type Permission } from "@/lib/rbac";
 import type { Role } from "@/lib/roles";
 
 export type NavItem = {
   href: string;
   label: string;
   icon: LucideIcon;
-  /** Omit to show the item to every role. */
-  roles?: readonly Role[];
+  /** Shown only to roles holding this permission (at any scope). */
+  permission?: Permission;
   /** "g x" style sequence; shown in the palette and the shortcut sheet. */
   shortcut?: string;
   keywords?: string[];
@@ -19,7 +29,53 @@ export type NavGroup = { label: string; items: NavItem[] };
  * Only routes that exist are listed here. Each phase adds its modules, so
  * navigation never points at an unfinished screen.
  */
-export const NAVIGATION: NavGroup[] = [
+export const APP_NAVIGATION: NavGroup[] = [
+  {
+    label: "Workspace",
+    items: [
+      {
+        href: "/home",
+        label: "Home",
+        icon: House,
+        shortcut: "g h",
+        keywords: ["dashboard", "today"],
+      },
+    ],
+  },
+  {
+    label: "Administration",
+    items: [
+      {
+        href: "/settings/roles",
+        label: "Roles & access",
+        icon: ShieldCheck,
+        permission: "roles.read",
+        shortcut: "g r",
+        keywords: ["permissions", "rbac", "admin"],
+      },
+    ],
+  },
+  {
+    label: "You",
+    items: [
+      {
+        href: "/settings",
+        label: "Settings",
+        icon: Settings,
+        shortcut: "g s",
+        keywords: ["password", "sessions", "theme", "preferences", "account"],
+      },
+      {
+        href: "/design",
+        label: "Design system",
+        icon: Palette,
+        keywords: ["components", "tokens"],
+      },
+    ],
+  },
+];
+
+export const DESIGN_NAVIGATION: NavGroup[] = [
   {
     label: "Design system",
     items: [
@@ -56,11 +112,13 @@ export const NAVIGATION: NavGroup[] = [
 ];
 
 /** The groups a role may see, with empty groups removed. */
-export function navigationFor(role: Role | null, groups: NavGroup[] = NAVIGATION): NavGroup[] {
+export function navigationFor(role: Role | null, groups: NavGroup[]): NavGroup[] {
   return groups
     .map((g) => ({
       ...g,
-      items: g.items.filter((i) => !i.roles || (role !== null && i.roles.includes(role))),
+      items: g.items.filter(
+        (i) => !i.permission || (role !== null && can({ role, employeeId: null }, i.permission)),
+      ),
     }))
     .filter((g) => g.items.length > 0);
 }

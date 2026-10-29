@@ -1,23 +1,33 @@
 "use client";
 
+import { ArrowRight, Keyboard, Menu, Moon, PanelLeft, Rows3, Search } from "lucide-react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Keyboard, Menu, Moon, PanelLeft, Rows3, Search } from "lucide-react";
-import { useTheme } from "@/hooks/use-theme";
 import * as React from "react";
 
+import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/overlay";
 import { Kbd } from "@/components/ui/primitives";
 import { Tooltip } from "@/components/ui/tooltip";
-import { navigationFor, type NavGroup } from "@/config/navigation";
-import type { Role } from "@/lib/roles";
+import {
+  APP_NAVIGATION,
+  DESIGN_NAVIGATION,
+  navigationFor,
+  type NavGroup,
+} from "@/config/navigation";
+import { useTheme } from "@/hooks/use-theme";
 import { getDensity, isSidebarCollapsed, setDensity, setSidebarCollapsed } from "@/lib/preferences";
 
 import { useActions, useIsMac, useRegisterActions, type Action } from "./actions-provider";
 import { BrandMark, Wordmark } from "./brand";
 import { CommandPalette } from "./command-palette";
 import { ThemeMenu } from "./preference-controls";
+import { PreferenceSync } from "./preference-sync";
 import { ShortcutSheet } from "./shortcut-sheet";
 import { NavList, Sidebar } from "./sidebar";
+import { UserMenu, type ShellUser } from "./user-menu";
+
+export type { ShellUser };
 
 function useShellActions(groups: NavGroup[]) {
   const router = useRouter();
@@ -116,16 +126,23 @@ function SearchTrigger() {
 /**
  * Navigation is resolved here, on the client, because nav items carry icon
  * components that can't be serialized from a Server Component. The server
- * only passes the role.
+ * passes plain user data (or nothing, on the public design pages).
  */
 export function AppShell({
-  role = null,
+  variant,
+  user = null,
   children,
 }: {
-  role?: Role | null;
+  variant: "app" | "design";
+  user?: ShellUser | null;
   children: React.ReactNode;
 }) {
-  const groups = React.useMemo(() => navigationFor(role), [role]);
+  const role = user?.role ?? null;
+  const groups = React.useMemo(
+    () => navigationFor(role, variant === "app" ? APP_NAVIGATION : DESIGN_NAVIGATION),
+    [role, variant],
+  );
+  const homeHref = variant === "app" ? "/home" : "/design";
   useShellActions(groups);
   const { setHelpOpen, setPaletteOpen } = useActions();
   const [mobileOpen, setMobileOpen] = React.useState(false);
@@ -138,7 +155,11 @@ export function AppShell({
         Skip to content
       </a>
 
-      <Sidebar groups={groups} onToggle={() => setSidebarCollapsed(!isSidebarCollapsed())} />
+      <Sidebar
+        groups={groups}
+        homeHref={homeHref}
+        onToggle={() => setSidebarCollapsed(!isSidebarCollapsed())}
+      />
 
       <div className="flex min-w-0 flex-1 flex-col">
         <header className="sticky top-0 z-30 flex h-14 items-center gap-3 border-b border-hairline bg-bg/85 px-4 backdrop-blur-md sm:px-6 lg:px-8">
@@ -179,6 +200,19 @@ export function AppShell({
               </button>
             </Tooltip>
             <ThemeMenu />
+            {user ? (
+              <span className="ml-1.5">
+                <UserMenu user={user} />
+              </span>
+            ) : (
+              variant === "design" && (
+                <Button asChild size="sm" variant="secondary" className="ml-2">
+                  <Link href="/home">
+                    Open Grove <ArrowRight aria-hidden />
+                  </Link>
+                </Button>
+              )
+            )}
           </div>
         </header>
 
@@ -200,6 +234,7 @@ export function AppShell({
 
       <CommandPalette />
       <ShortcutSheet />
+      {user && <PreferenceSync user={user} />}
     </div>
   );
 }

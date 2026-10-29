@@ -2,26 +2,85 @@
 
 A human resource management system people actually enjoy using: calm, warm, and quietly delightful. It's built as a portfolio project with production-grade engineering.
 
-> **Status: Phase 1 of 9, foundation and design system.** The full feature set (directory, attendance, leave, payroll, performance, recruitment, analytics) is planned in [`docs/PLAN.md`](docs/PLAN.md). This README grows with each phase.
+> **Status: Phase 2 of 9: data, auth and access control.** The full feature set (directory, attendance, leave, payroll, performance, recruitment, analytics) is planned in [`docs/PLAN.md`](docs/PLAN.md). This README grows with each phase.
+
+## Try it
+
+Sign in at `/login` with one click as any of four people at Northwind Grove, a fictional Bengaluru company with about 100 employees:
+
+| Role         | Person                                       | Email                               |
+| ------------ | -------------------------------------------- | ----------------------------------- |
+| Employee     | Arjun Mehta, Senior Frontend Engineer        | `arjun.mehta@northwindgrove.in`     |
+| Team manager | Priya Raman, Engineering Manager (8 reports) | `priya.raman@northwindgrove.in`     |
+| HR manager   | Rahul Deshpande, Head of People              | `rahul.deshpande@northwindgrove.in` |
+| Super admin  | Aditya Banerjee, COO                         | `aditya.banerjee@northwindgrove.in` |
+
+The password is `grove-demo-2026`, and every other employee uses it too. Once you're signed in, the account menu switches between the demo roles.
 
 ## What's here today
 
-- **"Warm Calm" design system.** Light and dark themes are both first-class, built on design tokens that are checked against WCAG AA by an automated test. Typography is Fraunces, Geist and Geist Mono. There are density modes (comfortable and compact) and spring-based motion that respects reduced-motion settings.
-- **Component library.** Accessible Radix primitives styled from scratch: forms wired to Zod, a date-range picker that marks holidays and teammates who are away, a combobox, a TanStack data table (sorting, selection, bulk actions, keyboard navigation), charts with a table fallback, a tactile hold-to-confirm clock-in button, empty, error and skeleton states, and milestone confetti.
-- **App shell.** Collapsible sidebar, mobile navigation sheet, a ⌘K/Ctrl+K command palette, `g`-sequence navigation shortcuts, and a `?` cheat sheet. All of them run off one action registry.
-- **Living showcase.** `/design` (Foundations, Components, Data & charts, Patterns).
+- **Sign-in and accounts**
+  - Email and password sign-in with database sessions (Better Auth).
+  - Password reset by emailed link. In demo mode, the reset screen shows the link it would have sent.
+  - An active-sessions list where you can sign out other devices.
+  - Theme and density preferences that follow your account between devices.
+- **Role-based access control**
+  - Four roles. Each permission has a scope: your own records, your team, or everyone.
+  - The same rules are enforced on the server for every page and action, and decide what the UI shows.
+  - Admins and HR can see the full access matrix.
+- **Role-aware home**
+  - Your profile, team and upcoming holidays.
+  - Company-wide numbers for HR and admins.
+- **"Warm Calm" design system**
+  - Light and dark themes, with design tokens checked against WCAG AA by a test.
+  - Accessible components styled from scratch.
+  - A ⌘K/Ctrl+K command palette and keyboard shortcuts.
+  - A public showcase at `/design`.
+- **Data model.** The full schema for every planned module (45 tables), plus a seed that builds the company deterministically.
 
 ## Tech stack
 
-Next.js 16 (App Router, Cache Components) · TypeScript (strict) · Tailwind CSS v4 · Radix UI · Motion · TanStack Table · React Hook Form + Zod · Recharts · Vitest · Playwright + axe. Coming in Phase 2: Prisma + Supabase Postgres and Better Auth.
+Next.js 16 (App Router, Cache Components), TypeScript (strict), Tailwind CSS v4, Radix UI, Motion, TanStack Table, React Hook Form with Zod, Recharts, Prisma 7 on Supabase Postgres, Better Auth, Vitest, and Playwright with axe.
 
 ## Getting started
 
+1. Install dependencies.
+
+   ```bash
+   npm install
+   ```
+
+2. Copy `.env.example` to `.env.local` and fill in your Supabase connection strings and `BETTER_AUTH_SECRET`.
+
+3. Create the tables.
+
+   ```bash
+   npm run db:migrate
+   ```
+
+4. Build the demo company. This truncates all tables first.
+
+   ```bash
+   npm run db:seed
+   ```
+
+5. Start the dev server at http://localhost:3000.
+
+   ```bash
+   npm run dev
+   ```
+
+## Testing
+
 ```bash
-npm install
-npm run dev          # http://localhost:3000
 npm run check        # typecheck + lint + unit tests
-npm run test:e2e     # Playwright, desktop + mobile, axe in both themes
+npm run test:e2e     # Playwright on desktop and mobile, with axe checks in both themes
+```
+
+End-to-end tests need `DATABASE_URL` set. Before each run they reseed the database, which they only do for a local database unless you set `E2E_ALLOW_RESEED=1`. With a local database server you can run:
+
+```bash
+DATABASE_URL="postgresql://postgres:postgres@127.0.0.1:5432/grove" npm run test:e2e
 ```
 
 ## Project docs

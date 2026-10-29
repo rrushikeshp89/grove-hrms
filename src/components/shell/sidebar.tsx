@@ -98,10 +98,12 @@ function CollapsedTooltip({ label, children }: { label: string; children: React.
 
 export function Sidebar({
   groups,
+  homeHref,
   onToggle,
   footer,
 }: {
   groups: NavGroup[];
+  homeHref: string;
   onToggle: () => void;
   footer?: React.ReactNode;
 }) {
@@ -114,7 +116,7 @@ export function Sidebar({
     >
       <div className="mb-6 flex items-center justify-between gap-2 px-1.5 sidebar-collapsed:justify-center sidebar-collapsed:px-0">
         <Link
-          href="/design"
+          href={homeHref}
           className="flex items-center gap-2.5 rounded-control"
           aria-label="Grove home"
         >
