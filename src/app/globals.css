@@ -1,0 +1,413 @@
+@import "tailwindcss";
+
+/* Dark mode follows the `.dark` class set by lib/preferences.ts, not the media query,
+   so the user's in-app choice always wins. */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* Preferences applied on <html> before first paint (see lib/preferences.ts). */
+@custom-variant sidebar-collapsed (:where([data-sidebar="collapsed"]) &);
+@custom-variant compact (:where([data-density="compact"]) &);
+
+/* ───────────────────────────────────────────────────────────────────────────
+   Design tokens — "Warm Calm"
+   Every color in the product comes from here. Components use the semantic
+   Tailwind names below (bg-surface, text-ink-muted, border-hairline…), never
+   hex values. Contrast pairs are asserted in src/styles/tokens.test.ts.
+   ─────────────────────────────────────────────────────────────────────────── */
+:root {
+  --bg: #faf8f5;
+  --surface: #ffffff;
+  --surface-sunken: #f3f0ea;
+  --surface-hover: #f5f2ed;
+  --surface-active: #ede9e2;
+  --hairline: #e8e3db;
+  --border-strong: #d5cdc1;
+  --border-input: #8f867b;
+
+  --ink: #1c1917;
+  --ink-muted: #57534e;
+  --ink-subtle: #736b64;
+
+  --accent: #1f5c4a;
+  --accent-hover: #194c3d;
+  --accent-subtle: #e5eeea;
+  --accent-fg: #ffffff;
+
+  --highlight: #e8a33d;
+  --highlight-subtle: #fbf0dc;
+  --highlight-ink: #7a4e0e;
+  --highlight-fg: #1c1917;
+
+  --success: #37704f;
+  --success-subtle: #e7f0ea;
+  --warning: #8f5a0e;
+  --warning-subtle: #f8eedc;
+  --danger: #ab4537;
+  --danger-subtle: #f8e9e5;
+  --danger-hover: #923a2e;
+  --danger-fg: #ffffff;
+  --info: #3d6585;
+  --info-subtle: #e6edf3;
+
+  --chart-1: #2d6b57;
+  --chart-2: #e0a145;
+  --chart-3: #c2664f;
+  --chart-4: #5c7d9b;
+  --chart-5: #93ae8c;
+  --chart-6: #a9825e;
+  --chart-grid: #ece7df;
+
+  --scrim: rgb(28 25 23 / 0.32);
+
+  --shadow-xs: 0 1px 0 rgb(28 25 23 / 0.04);
+  --shadow-sm: 0 1px 2px rgb(28 25 23 / 0.06), 0 1px 1px rgb(28 25 23 / 0.03);
+  --shadow-md: 0 4px 12px -2px rgb(28 25 23 / 0.08), 0 2px 4px -2px rgb(28 25 23 / 0.05);
+  --shadow-lg: 0 16px 40px -8px rgb(28 25 23 / 0.14), 0 4px 12px -4px rgb(28 25 23 / 0.06);
+  /* tactile top highlight on filled buttons */
+  --shadow-press: inset 0 1px 0 rgb(255 255 255 / 0.14), 0 1px 2px rgb(28 25 23 / 0.12);
+
+  /* density — comfortable by default */
+  --row-h: 52px;
+  --cell-px: 16px;
+  --list-gap: 12px;
+
+  color-scheme: light;
+}
+
+.dark {
+  --bg: #171513;
+  --surface: #1f1c19;
+  --surface-sunken: #13110f;
+  --surface-hover: #26221e;
+  --surface-active: #2d2924;
+  --hairline: #2e2a25;
+  --border-strong: #3d3832;
+  --border-input: #736a61;
+
+  --ink: #f2eee8;
+  --ink-muted: #b3aaa0;
+  --ink-subtle: #8e857b;
+
+  --accent: #5bae8f;
+  --accent-hover: #6dbe9f;
+  --accent-subtle: #1c2e28;
+  --accent-fg: #0e1c17;
+
+  --highlight: #f0b45a;
+  --highlight-subtle: #33280f;
+  --highlight-ink: #f5c77e;
+  --highlight-fg: #1c1917;
+
+  --success: #6fb28a;
+  --success-subtle: #1b2a21;
+  --warning: #e0a857;
+  --warning-subtle: #30240f;
+  --danger: #e07b6a;
+  --danger-subtle: #341c18;
+  --danger-hover: #ea8f7f;
+  --danger-fg: #1c1917;
+  --info: #7fa7c7;
+  --info-subtle: #18232d;
+
+  --chart-1: #5bae8f;
+  --chart-2: #f0b45a;
+  --chart-3: #e07b6a;
+  --chart-4: #7fa7c7;
+  --chart-5: #a9c4a2;
+  --chart-6: #c9a17c;
+  --chart-grid: #2a2622;
+
+  --scrim: rgb(8 7 6 / 0.6);
+
+  /* in the dark, depth comes from surface steps and a faint top edge */
+  --shadow-xs: inset 0 1px 0 rgb(255 255 255 / 0.03);
+  --shadow-sm: inset 0 1px 0 rgb(255 255 255 / 0.04), 0 1px 2px rgb(0 0 0 / 0.3);
+  --shadow-md: inset 0 1px 0 rgb(255 255 255 / 0.04), 0 8px 20px -4px rgb(0 0 0 / 0.5);
+  --shadow-lg: inset 0 1px 0 rgb(255 255 255 / 0.05), 0 20px 48px -8px rgb(0 0 0 / 0.6);
+  --shadow-press: inset 0 1px 0 rgb(255 255 255 / 0.18), 0 1px 2px rgb(0 0 0 / 0.4);
+
+  color-scheme: dark;
+}
+
+[data-density="compact"] {
+  --row-h: 40px;
+  --cell-px: 12px;
+  --list-gap: 8px;
+}
+
+/* ─── Tailwind theme mapping ─────────────────────────────────────────────── */
+@theme inline {
+  /* Wipe Tailwind's default palette so only tokens exist. */
+  --color-*: initial;
+  --color-transparent: transparent;
+  --color-current: currentColor;
+
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-sunken: var(--surface-sunken);
+  --color-surface-hover: var(--surface-hover);
+  --color-surface-active: var(--surface-active);
+  --color-hairline: var(--hairline);
+  --color-border-strong: var(--border-strong);
+  --color-border-input: var(--border-input);
+  --color-ink: var(--ink);
+  --color-ink-muted: var(--ink-muted);
+  --color-ink-subtle: var(--ink-subtle);
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-subtle: var(--accent-subtle);
+  --color-accent-fg: var(--accent-fg);
+  --color-highlight: var(--highlight);
+  --color-highlight-subtle: var(--highlight-subtle);
+  --color-highlight-ink: var(--highlight-ink);
+  --color-highlight-fg: var(--highlight-fg);
+  --color-success: var(--success);
+  --color-success-subtle: var(--success-subtle);
+  --color-warning: var(--warning);
+  --color-warning-subtle: var(--warning-subtle);
+  --color-danger: var(--danger);
+  --color-danger-subtle: var(--danger-subtle);
+  --color-danger-hover: var(--danger-hover);
+  --color-danger-fg: var(--danger-fg);
+  --color-info: var(--info);
+  --color-info-subtle: var(--info-subtle);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-chart-6: var(--chart-6);
+  --color-chart-grid: var(--chart-grid);
+  --color-scrim: var(--scrim);
+
+  --font-sans: var(--font-geist), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-fraunces), ui-serif, Georgia, serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+
+  /* Type scale. Only these steps exist. */
+  --text-*: initial;
+  --text-display-xl: 2.75rem;
+  --text-display-xl--line-height: 3rem;
+  --text-display-xl--letter-spacing: -0.025em;
+  --text-display: 2.125rem;
+  --text-display--line-height: 2.5rem;
+  --text-display--letter-spacing: -0.02em;
+  --text-title: 1.5rem;
+  --text-title--line-height: 2rem;
+  --text-title--letter-spacing: -0.015em;
+  --text-heading: 1.0625rem;
+  --text-heading--line-height: 1.5rem;
+  --text-heading--letter-spacing: -0.01em;
+  --text-body: 0.90625rem;
+  --text-body--line-height: 1.375rem;
+  --text-small: 0.8125rem;
+  --text-small--line-height: 1.25rem;
+  --text-caption: 0.75rem;
+  --text-caption--line-height: 1rem;
+  --text-caption--letter-spacing: 0.01em;
+
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-control: 8px;
+  --radius-card: 12px;
+  --radius-overlay: 14px;
+
+  --shadow-*: initial;
+  --shadow-xs: var(--shadow-xs);
+  --shadow-sm: var(--shadow-sm);
+  --shadow-md: var(--shadow-md);
+  --shadow-lg: var(--shadow-lg);
+  --shadow-press: var(--shadow-press);
+
+  --spacing-row: var(--row-h);
+  --spacing-cell: var(--cell-px);
+  --spacing-list: var(--list-gap);
+
+  --ease-out-soft: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --ease-in-soft: cubic-bezier(0.4, 0, 1, 1);
+
+  --animate-shimmer: shimmer 1.6s var(--ease-out-soft) infinite;
+  --animate-fade-in: fade-in 200ms var(--ease-out-soft);
+
+  @keyframes shimmer {
+    0% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.55;
+    }
+    100% {
+      opacity: 1;
+    }
+  }
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+}
+
+/* Overlay motion. Tailwind v4 positions with the `translate` property, so
+   these keyframes use `transform` and compose with it instead of fighting. */
+@keyframes fade-out {
+  to {
+    opacity: 0;
+  }
+}
+@keyframes dialog-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px) scale(0.98);
+  }
+}
+@keyframes dialog-out {
+  to {
+    opacity: 0;
+    transform: scale(0.98);
+  }
+}
+@keyframes pop-in {
+  from {
+    opacity: 0;
+    transform: scale(0.97);
+  }
+}
+@keyframes sheet-in-right {
+  from {
+    transform: translateX(100%);
+  }
+}
+@keyframes sheet-out-right {
+  to {
+    transform: translateX(100%);
+  }
+}
+@keyframes sheet-in-left {
+  from {
+    transform: translateX(-100%);
+  }
+}
+@keyframes sheet-out-left {
+  to {
+    transform: translateX(-100%);
+  }
+}
+@keyframes sheet-in-bottom {
+  from {
+    transform: translateY(100%);
+  }
+}
+@keyframes sheet-out-bottom {
+  to {
+    transform: translateY(100%);
+  }
+}
+
+/* ─── Base ───────────────────────────────────────────────────────────────── */
+@layer base {
+  *,
+  ::before,
+  ::after {
+    border-color: var(--hairline);
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--font-sans);
+    font-size: var(--text-body);
+    line-height: var(--text-body--line-height);
+    font-feature-settings: "cv11", "ss01";
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  ::selection {
+    background: var(--accent-subtle);
+    color: var(--ink);
+  }
+
+  /* One focus treatment everywhere. Components never remove it. */
+  :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  :focus:not(:focus-visible) {
+    outline: none;
+  }
+
+  [hidden] {
+    display: none !important;
+  }
+
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--border-strong);
+    border: 3px solid transparent;
+    border-radius: 999px;
+    background-clip: padding-box;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ─── Utilities ──────────────────────────────────────────────────────────── */
+
+/* Tabular numerals for every number a person compares. */
+@utility num {
+  font-variant-numeric: tabular-nums lining-nums;
+  font-feature-settings: "tnum", "lnum";
+}
+
+/* Fraunces with its soft, low-contrast setting for display text. */
+@utility font-display-soft {
+  font-family: var(--font-display);
+  font-variation-settings:
+    "SOFT" 50,
+    "WONK" 0;
+  font-optical-sizing: auto;
+}
+
+@utility eyebrow {
+  font-size: var(--text-caption);
+  line-height: var(--text-caption--line-height);
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-subtle);
+}
