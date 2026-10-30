@@ -131,7 +131,7 @@ async function announcements(user: CurrentUser, terms: string[]): Promise<Search
       id: r.id,
       title: r.title,
       detail: `Announcement · ${nameOf(r.author)}`,
-      href: `/announcements/${r.id}`,
+      href: `/announcements#a-${r.id}`,
     }));
 }
 

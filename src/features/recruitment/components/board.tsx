@@ -453,7 +453,7 @@ export function Board({
           role="region"
           aria-label="Hiring pipeline"
           tabIndex={0}
-          className="-mx-4 flex snap-x gap-3 overflow-x-auto px-4 pb-2 outline-none focus-visible:ring-2 focus-visible:ring-accent sm:mx-0 sm:px-0"
+          className="-mx-4 flex snap-x gap-3 relative overflow-x-auto px-4 pb-2 outline-none focus-visible:ring-2 focus-visible:ring-accent sm:mx-0 sm:px-0"
         >
           {PIPELINE.map((stage) => (
             <Column key={stage} stage={stage} candidates={columns[stage]} canHire={canHire}>

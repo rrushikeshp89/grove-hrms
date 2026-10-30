@@ -101,7 +101,7 @@ export function TeamCalendar({
         />
       ) : (
         <div
-          className="mt-4 overflow-x-auto"
+          className="relative mt-4 overflow-x-auto"
           tabIndex={0}
           role="region"
           aria-label={`Team leave for ${title}, scrollable`}

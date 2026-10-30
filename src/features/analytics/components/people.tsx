@@ -30,7 +30,7 @@ export function HeadcountOverview({ data, label }: { data: PeopleReport; label: 
         rows: data.series.map((p) => [p.label, p.headcount, p.joiners, p.leavers]),
       }}
     >
-      <div className="grid h-full gap-6 sm:grid-cols-[12rem_1fr]">
+      <div className="grid h-full gap-6 sm:grid-cols-[12rem_minmax(0,1fr)]">
         <div className="flex flex-col justify-between gap-4">
           <Stat
             variant="hero"
@@ -177,7 +177,7 @@ export function Attrition({ data }: { data: PeopleReport }) {
             {data.reasons.map((r) => (
               <li
                 key={r.reason}
-                className="grid grid-cols-[1fr_auto] items-center gap-3 text-small"
+                className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 text-small"
               >
                 <span className="text-ink">{r.reason}</span>
                 <span className="num font-medium text-ink-muted">{r.n}</span>

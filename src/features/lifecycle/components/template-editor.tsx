@@ -69,7 +69,7 @@ export function TemplateEditor({ template }: { template: Template }) {
           {fields.map((f, i) => (
             <fieldset
               key={f.id}
-              className="grid items-start gap-3 border-b border-hairline pb-3 last:border-0 sm:grid-cols-[1fr_9rem_6rem_auto]"
+              className="grid items-start gap-3 border-b border-hairline pb-3 last:border-0 sm:grid-cols-[minmax(0,1fr)_9rem_6rem_auto]"
             >
               <legend className="sr-only">Task {i + 1}</legend>
               <Field label="Task" error={errors.tasks?.[i]?.title?.message}>

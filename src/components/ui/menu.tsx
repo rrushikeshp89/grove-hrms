@@ -107,7 +107,7 @@ export function TabsList({ className, ...props }: React.ComponentProps<typeof Ta
   return (
     <TabsPrimitive.List
       className={cn(
-        "flex [scrollbar-width:none] items-center gap-6 overflow-x-auto border-b border-hairline",
+        "relative flex [scrollbar-width:none] items-center gap-6 overflow-x-auto border-b border-hairline",
         className,
       )}
       {...props}

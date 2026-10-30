@@ -148,7 +148,7 @@ export function GoalSheet({
                   key={f.id}
                   role="group"
                   aria-label={`Key result ${i + 1}`}
-                  className="grid gap-3 rounded-control border border-hairline p-3 sm:grid-cols-[1fr_1fr_1fr_5rem]"
+                  className="grid gap-3 rounded-control border border-hairline p-3 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_1fr_5rem]"
                 >
                   <Field
                     label="What's measured"

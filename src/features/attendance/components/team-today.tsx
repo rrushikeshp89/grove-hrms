@@ -49,7 +49,7 @@ export function TeamToday({ rows, tz }: { rows: TeamTodayRow[]; tz?: string }) {
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="overflow-x-auto pb-1">
+      <div className="relative overflow-x-auto pb-1">
         <SegmentedControl<Filter>
           aria-label="Show"
           size="sm"

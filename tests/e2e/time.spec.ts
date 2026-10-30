@@ -123,8 +123,9 @@ test.describe("time and approvals", () => {
     await signInAs(page, "EMPLOYEE");
     await page.goto("/attendance");
     await page
+      // An older day: today's clock-in can be later than the clock-out this test types.
       .getByRole("button", { name: /^Correct / })
-      .first()
+      .last()
       .click();
     const sheet = page.getByRole("dialog", { name: "Correct a day" });
     await sheet.getByLabel("Clocked out at").fill("19:05");

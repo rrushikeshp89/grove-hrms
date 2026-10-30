@@ -135,7 +135,7 @@ export function DataTable<T extends RowData>({
 
   return (
     <div className={cn("relative", className)}>
-      <div className="overflow-x-auto rounded-card border border-hairline bg-surface shadow-xs">
+      <div className="relative overflow-x-auto rounded-card border border-hairline bg-surface shadow-xs">
         <table className="w-full border-collapse text-left">
           <caption className="sr-only">{caption}</caption>
           <thead>

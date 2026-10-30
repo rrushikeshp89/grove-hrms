@@ -624,6 +624,14 @@ Every phase ends the same way: typecheck, lint and tests pass with zero errors, 
 - Supabase and Vercel deploy, with nightly reseed cron.
 - README with screenshots and GIFs, an architecture diagram, and demo credentials.
 
+- _As built:_
+  - **Audit sweep** (`tests/e2e/sweep.spec.ts`): every screen as the role that owns it, in both themes, on desktop and a Pixel 7, checking for console errors and failed requests, sideways scrolling and serious axe violations, plus keyboard paths (skip link, visible focus, focus trapped in dialogs and returned on close). It found and fixed: grids with no column definition growing past the viewport on phones (now every `.grid` starts as `minmax(0,1fr)`); `sr-only` text inside wide tables widening the whole page (scroll containers are now positioned); scroll regions without a keyboard stop; and two links to a route that doesn't exist (an announcement has no page of its own, so notifications and search now link to `/announcements#a-<id>`).
+  - **Lighthouse** (production build, Chrome, local database): desktop performance 95 to 99, accessibility 98 to 100, best practices and SEO 100. Simulated mobile performance is 53 to 81, limited by JavaScript weight under 4x CPU throttling (unthrottled mobile sign in scores 100). Recharts is now loaded only for the card that uses it. Next lever: the Motion bundle.
+  - **Storage:** `lib/storage.ts` picks a private Supabase Storage bucket when `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` are set, using its REST API with `fetch` (no new dependency, which also keeps `@vercel/blob` and its advisory out). On Vercel it refuses to fall back to the local disk. Tested against a mocked `fetch`; **not yet exercised against a live Supabase project**.
+  - **Scheduled jobs:** `/api/cron/reminders` (09:00 IST, `vercel.json`) nudges approvers about requests waiting two days, assignees about due and overdue checklist tasks, and people about review deadlines. It needs `CRON_SECRET` (otherwise it answers 503), and skips anyone reminded about the same page in the last 20 hours.
+  - **Delivery:** `.github/workflows/ci.yml` (check, then the whole Playwright suite against a Postgres container) and `reseed.yml` (nightly, gated by the `RESEED_ENABLED` variable). Security headers are set in `next.config.ts`, and `/api/health` checks the database. Step-by-step setup is in `docs/DEPLOY.md`.
+  - **Not done:** animated GIFs for the README, and an actual Supabase and Vercel deployment, which need accounts and keys only you can create.
+
 ---
 
 ## 5. Dependencies that need your OK

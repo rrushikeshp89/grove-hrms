@@ -10,10 +10,10 @@ import {
   Sparkles,
   Sprout,
 } from "lucide-react";
+import dynamic from "next/dynamic";
 import Link from "next/link";
 import * as React from "react";
 
-import { TrendArea } from "@/components/charts/charts";
 import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { celebrate } from "@/components/ui/celebrate";
@@ -27,6 +27,12 @@ import { dbDate } from "@/lib/tz";
 
 import type { HomeData, HomeMoment } from "../queries";
 import { DayBar } from "./day-bar";
+
+// Recharts is ~100 KB and only the company card uses it, so everyone else never downloads it.
+const TrendArea = dynamic(() => import("@/components/charts/charts").then((m) => m.TrendArea), {
+  ssr: false,
+  loading: () => <div className="h-full min-h-44 rounded-control bg-surface-sunken" aria-hidden />,
+});
 
 /* ─── Company pulse ────────────────────────────────────────────────────── */
 

@@ -269,7 +269,7 @@ export function DepartmentSheet({
             id="department-form"
             onSubmit={submit}
             noValidate
-            className="grid gap-4 sm:grid-cols-[1fr_8rem]"
+            className="grid gap-4 sm:grid-cols-[minmax(0,1fr)_8rem]"
           >
             <Field label="Name" error={errors.name?.message}>
               <Input {...form.register("name")} />

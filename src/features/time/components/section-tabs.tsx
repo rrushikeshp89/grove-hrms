@@ -20,7 +20,7 @@ export function SectionTabs({
   return (
     <nav
       aria-label={label}
-      className="flex items-center gap-6 overflow-x-auto border-b border-hairline"
+      className="relative flex items-center gap-6 overflow-x-auto border-b border-hairline"
     >
       {tabs.map((t) => {
         const active = (current ?? pathname) === t.href;

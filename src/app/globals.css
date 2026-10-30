@@ -314,6 +314,15 @@
     border-color: var(--hairline);
   }
 
+  /*
+   * A grid with no columns of its own gets one "auto" track, which grows to
+   * its widest child and pushes the page sideways on phones. Start every grid
+   * as a single shrinkable column; grid-cols-* and its breakpoints override this.
+   */
+  .grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
   html {
     -webkit-text-size-adjust: 100%;
     text-rendering: optimizeLegibility;

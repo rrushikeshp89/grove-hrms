@@ -55,7 +55,7 @@ async function Attendance({
   return (
     <div className="flex flex-col gap-6">
       {tabs && <SectionTabs label="Attendance views" tabs={tabs} />}
-      <div className="grid items-start gap-4 lg:grid-cols-[20rem_1fr]">
+      <div className="grid items-start gap-4 lg:grid-cols-[20rem_minmax(0,1fr)]">
         <div className="lg:sticky lg:top-20">
           <ClockCard key={`${today.today}-${today.clockInAt}-${today.clockOutAt}`} today={today} />
         </div>
@@ -67,7 +67,7 @@ async function Attendance({
 
 function AttendanceSkeleton() {
   return (
-    <div className="grid gap-4 lg:grid-cols-[20rem_1fr]" aria-busy>
+    <div className="grid gap-4 lg:grid-cols-[20rem_minmax(0,1fr)]" aria-busy>
       <span className="sr-only">Loading attendance</span>
       <Card className="flex flex-col items-center gap-5 py-8">
         <Skeleton className="h-3 w-16" />

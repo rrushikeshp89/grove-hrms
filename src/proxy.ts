@@ -6,7 +6,16 @@ import { NextResponse, type NextRequest } from "next/server";
  * that it's valid. Real checks happen on the server in every page, action
  * and route handler (src/server/session.ts).
  */
-const PUBLIC_PREFIXES = ["/login", "/forgot-password", "/reset-password", "/design", "/api/auth"];
+// /api/cron checks its own shared secret; /api/health reveals nothing.
+const PUBLIC_PREFIXES = [
+  "/login",
+  "/forgot-password",
+  "/reset-password",
+  "/design",
+  "/api/auth",
+  "/api/cron",
+  "/api/health",
+];
 
 export function proxy(request: NextRequest) {
   const { pathname, search } = request.nextUrl;

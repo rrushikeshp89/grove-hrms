@@ -2,7 +2,7 @@
 
 A human resource management system people actually enjoy using: calm, warm, and quietly delightful. It's built as a portfolio project with production-grade engineering.
 
-> **Status: Phase 8 of 9: notifications, audit log, settings, import and export, search.** The full feature set (directory, attendance, leave, payroll, performance, recruitment, analytics) is planned in [`docs/PLAN.md`](docs/PLAN.md). This README grows with each phase.
+> **Status: complete (Phase 9 of 9).** Every module in [`docs/PLAN.md`](docs/PLAN.md) is built and tested. It runs locally against any Postgres, and [`docs/DEPLOY.md`](docs/DEPLOY.md) covers putting it on Supabase and Vercel.
 
 ## Try it
 
@@ -16,6 +16,27 @@ Sign in at `/login` with one click as any of four people at Northwind Grove, a f
 | Super admin  | Aditya Banerjee, COO                         | `aditya.banerjee@northwindgrove.in` |
 
 The password is `grove-demo-2026`, and every other employee uses it too. Once you're signed in, the account menu switches between the demo roles.
+
+![Home for an employee: clock in, leave balances, announcements](docs/screenshots/home.png)
+
+<table>
+  <tr>
+    <td><img src="docs/screenshots/people.png" alt="People directory"></td>
+    <td><img src="docs/screenshots/org-chart.png" alt="Org chart"></td>
+  </tr>
+  <tr>
+    <td><img src="docs/screenshots/analytics.png" alt="Analytics with a table view for every chart"></td>
+    <td><img src="docs/screenshots/hiring.png" alt="Hiring board with drag and drop"></td>
+  </tr>
+  <tr>
+    <td><img src="docs/screenshots/payroll.png" alt="Simulated payroll runs"></td>
+    <td><img src="docs/screenshots/audit.png" alt="Audit log"></td>
+  </tr>
+  <tr>
+    <td><img src="docs/screenshots/command-palette.png" alt="Command palette searching across the app"></td>
+    <td><img src="docs/screenshots/home-dark.png" alt="The same home in the dark theme"></td>
+  </tr>
+</table>
 
 ## What's here today
 
@@ -128,6 +149,57 @@ The password is `grove-demo-2026`, and every other employee uses it too. Once yo
 
 Next.js 16 (App Router, Cache Components), TypeScript (strict), Tailwind CSS v4, Radix UI, Motion, TanStack Table, React Hook Form with Zod, Recharts, Prisma 7 on Supabase Postgres, Better Auth, Vitest, and Playwright with axe.
 
+## How it fits together
+
+```mermaid
+flowchart LR
+  Browser["Browser<br/>React 19, Motion, cmdk"]
+  subgraph Vercel["Vercel (Next.js 16, Cache Components)"]
+    Proxy["proxy.ts<br/>cookie redirects only"]
+    Pages["Server components<br/>pages and queries"]
+    Actions["Server actions<br/>createAction: auth, Zod, RBAC, audit"]
+    Routes["Route handlers<br/>CSV, PDF, files, cron, health"]
+  end
+  subgraph Supabase
+    PG[("Postgres<br/>Prisma 7")]
+    Files[("Storage<br/>private bucket")]
+  end
+  CI["GitHub Actions<br/>CI and nightly reseed"]
+
+  Browser --> Proxy --> Pages
+  Browser --> Actions
+  Browser --> Routes
+  Pages --> PG
+  Actions --> PG
+  Routes --> PG
+  Routes --> Files
+  Actions --> Files
+  CI --> PG
+  Cron["Vercel Cron<br/>09:00 IST"] --> Routes
+```
+
+- **Every check is on the server.** The proxy only redirects people with no cookie. Pages, actions and route handlers each call `requireUser` / `requirePermission`, and queries filter by what the person may see (`visibleEmployeeIds`).
+- **One way to change data.** `createAction` authenticates, validates with Zod, checks the role, then runs a transaction that writes the change, its audit entries and its notifications together.
+- **Business rules are plain functions** (leave balances, payroll, review visibility, CSV import checks) with their own unit tests, shared by the UI previews and the server.
+- **Files** go through a three-call storage interface: local disk in development, a private Supabase bucket in production.
+
+Deploying it yourself is covered in [`docs/DEPLOY.md`](docs/DEPLOY.md).
+
+## Quality
+
+- **Tests.** About 360 unit tests cover the business rules (leave, payroll, review visibility, CSV import and export, search, reminders, storage). The Playwright suite runs every flow on desktop and a Pixel 7, and a sweep opens **every screen as the role that owns it**, in both themes, checking for console errors, sideways scrolling and axe violations. It also exercises keyboard paths: skip link, visible focus, and focus trapped in dialogs.
+- **Accessibility.** axe reports no serious or critical violations anywhere. Lighthouse accessibility is 98 to 100 on the key pages.
+- **Lighthouse** (production build, local database), performance / accessibility / best practices / SEO:
+
+  | Page      | Desktop              | Mobile, simulated slow 4G |
+  | --------- | -------------------- | ------------------------- |
+  | Sign in   | 99 / 100 / 100 / 100 | 81 / 100 / 100 / 100      |
+  | Home      | 95 / 100 / 100 / 100 | 67 / 100 / 100 / 100      |
+  | People    | 98 / 100 / 100 / 100 | 65 / 100 / 100 / 100      |
+  | Analytics | 97 / 100 / 100 / 100 | 53 / 100 / 100 / 100      |
+
+  Desktop clears 90 everywhere. The mobile column is Lighthouse's most pessimistic profile (4x CPU slowdown, 1.6 Mbps). Measured without throttling, sign in scores 100 with a 1.1 s largest paint. The remaining mobile cost is JavaScript weight, and every page here also waits on a local single-connection database, so treat those numbers as a floor. Trimming the Motion bundle is the next lever.
+
 ## Getting started
 
 1. Install dependencies.
@@ -172,4 +244,5 @@ DATABASE_URL="postgresql://postgres:postgres@127.0.0.1:5432/grove" npm run test:
 ## Project docs
 
 - [`docs/PLAN.md`](docs/PLAN.md): architecture, database schema, design spec, phase plan
+- [`docs/DEPLOY.md`](docs/DEPLOY.md): Supabase, Vercel and GitHub Actions setup
 - [`CLAUDE.md`](CLAUDE.md): conventions and design rules

@@ -161,7 +161,7 @@ export function Timesheet({
                   key={r.day}
                   className={cn(
                     "border-b border-hairline last:border-0",
-                    "grid grid-cols-[1fr_auto] gap-x-3 gap-y-1 px-4 py-3 sm:table-row sm:p-0",
+                    "grid grid-cols-[minmax(0,1fr)_auto] gap-x-3 gap-y-1 px-4 py-3 sm:table-row sm:p-0",
                     muted && "bg-surface-sunken/40 text-ink-subtle",
                     r.day === data.today && "bg-accent-subtle/40 text-ink",
                   )}

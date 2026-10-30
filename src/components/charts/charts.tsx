@@ -389,7 +389,10 @@ export function Funnel({ stages }: { stages: { label: string; value: number }[] 
         const prev = stages[i - 1]?.value;
         const conv = prev ? Math.round((s.value / prev) * 100) : null;
         return (
-          <li key={s.label} className="grid grid-cols-[6.5rem_1fr_3rem] items-center gap-3">
+          <li
+            key={s.label}
+            className="grid grid-cols-[6.5rem_minmax(0,1fr)_3rem] items-center gap-3"
+          >
             <span className="truncate text-small text-ink-muted">{s.label}</span>
             <div className="h-7 overflow-hidden rounded-sm bg-surface-sunken">
               <div

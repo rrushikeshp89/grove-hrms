@@ -37,7 +37,12 @@ async function Payroll() {
             description="Start a run for a finished month to generate everyone's payslips as a draft."
           />
         ) : (
-          <div className="mt-3 overflow-x-auto border-t border-hairline">
+          <div
+            className="relative mt-3 overflow-x-auto border-t border-hairline"
+            tabIndex={0}
+            role="region"
+            aria-label="Pay runs, scrollable"
+          >
             <table className="w-full min-w-[36rem] text-left text-body">
               <caption className="sr-only">Pay runs</caption>
               <thead className="text-caption text-ink-muted">

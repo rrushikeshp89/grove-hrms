@@ -24,7 +24,7 @@ test.describe("analytics", () => {
     await signInAs(page, "HR_MANAGER");
     await page.goto("/analytics");
     for (const name of ["People", "Attrition", "Time off", "Attendance", "Hiring"])
-      await expect(page.getByRole("heading", { level: 2, name })).toBeVisible();
+      await expect(page.getByRole("heading", { level: 2, name, exact: true })).toBeVisible();
     await expect(page.getByText(/charted by month/)).toBeVisible();
     await expect(page.getByText("Hiring funnel")).toBeVisible();
     await expect(page.getByText("When people arrive")).toBeVisible();

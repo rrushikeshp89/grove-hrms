@@ -445,7 +445,7 @@ export function HomeView({ user, data }: { user: CurrentUser; data: HomeData }) 
       ) : (
         // Phones read top to bottom: the clock, then what needs you, then the rest.
         // Wide screens keep the clock, moments and holidays in a side column.
-        <div className="grid items-start gap-4 lg:grid-cols-3 lg:grid-rows-[auto_1fr]">
+        <div className="grid items-start gap-4 lg:grid-cols-3 lg:grid-rows-[auto_minmax(0,1fr)]">
           {data.clock && (
             <section aria-label="Today" className="lg:col-start-3 lg:row-start-1">
               <ClockCard

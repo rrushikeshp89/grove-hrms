@@ -125,7 +125,7 @@ async function Cycle({ params }: { params: PageProps<"/performance/cycles/[id]">
                     {[5, 4, 3, 2, 1].map((star) => (
                       <li
                         key={star}
-                        className="grid grid-cols-[1.5rem_1fr_2rem] items-center gap-2 text-small"
+                        className="grid grid-cols-[1.5rem_minmax(0,1fr)_2rem] items-center gap-2 text-small"
                       >
                         <span className="num text-ink-muted">{star}</span>
                         <span className="h-2 overflow-hidden rounded-full bg-surface-sunken">

@@ -95,7 +95,7 @@ export async function seedNotifications(db: PrismaClient): Promise<{ notificatio
         kind: "ANNOUNCEMENT",
         title: announcement.title,
         body: announcement.bodyText.slice(0, 120),
-        href: `/announcements/${announcement.id}`,
+        href: `/announcements#a-${announcement.id}`,
         readAt: null,
         createdAt: ago(20),
       });

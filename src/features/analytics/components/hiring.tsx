@@ -64,7 +64,12 @@ export function Hiring({ data }: { data: HiringReport }) {
           title="Where candidates come from"
           description="Applications and hires by source"
         />
-        <div className="overflow-x-auto px-5 pt-2 pb-4">
+        <div
+          className="relative overflow-x-auto px-5 pt-2 pb-4"
+          tabIndex={0}
+          role="region"
+          aria-label="Applications and hires by source, scrollable"
+        >
           <table className="w-full min-w-[28rem] text-left text-small">
             <caption className="sr-only">Applications and hires by source</caption>
             <thead>

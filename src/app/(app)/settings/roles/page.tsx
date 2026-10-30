@@ -54,7 +54,7 @@ function Matrix() {
         description="Own: records about yourself. Team: you and everyone below you in the org chart. Everyone: the whole company."
       />
       <div
-        className="mt-4 overflow-x-auto"
+        className="relative mt-4 overflow-x-auto"
         tabIndex={0}
         role="region"
         aria-label="Permissions by role, scrollable"

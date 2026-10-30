@@ -220,7 +220,7 @@ export default function FoundationsPage() {
             {typeScale.map((t) => (
               <div
                 key={t.name}
-                className="grid gap-2 px-5 py-4 sm:grid-cols-[8rem_1fr] sm:items-baseline"
+                className="grid gap-2 px-5 py-4 sm:grid-cols-[8rem_minmax(0,1fr)] sm:items-baseline"
               >
                 <span className="font-mono text-caption text-ink-subtle">{t.name}</span>
                 <span className={cn("text-ink", t.cls)}>{t.sample}</span>
@@ -312,7 +312,7 @@ export default function FoundationsPage() {
           title="Motion"
           description="150–250ms, spring-based, always explaining a change. Every animation respects reduced motion."
         >
-          <div className="grid gap-4 lg:grid-cols-[2fr_1fr]">
+          <div className="grid gap-4 lg:grid-cols-[2fr_minmax(0,1fr)]">
             <Specimen label="Springs" bodyClassName="block">
               <SpringDemo />
             </Specimen>
