@@ -19,7 +19,14 @@ import type { CurrentUser } from "@/server/session";
 import type { HomeData, HomePerson } from "../queries";
 import { DayBar } from "./day-bar";
 import { Greeting } from "./greeting";
-import { CompanyPulse, Moments, SeeAll, YourMonth } from "./widgets";
+import {
+  AnnouncementsCard,
+  CompanyPulse,
+  Moments,
+  PayslipCard,
+  SeeAll,
+  YourMonth,
+} from "./widgets";
 
 const STATUS_LABEL = {
   ONBOARDING: ["Onboarding", STATUS_TONES.onboarding],
@@ -91,6 +98,26 @@ function NeedsYou({ approvals }: { approvals: NonNullable<HomeData["approvals"]>
           </li>
         ))}
       </ul>
+    </Card>
+  );
+}
+
+/* ─── Reviews waiting ──────────────────────────────────────────────────── */
+
+function ReviewsNudge({ count }: { count: number }) {
+  return (
+    <Card className="flex flex-col gap-3 border-accent/30 bg-accent-subtle/50 p-5 sm:flex-row sm:items-center">
+      <div className="min-w-0 flex-1">
+        <p className="text-body font-semibold text-ink">
+          {count === 1 ? "A review is waiting for you" : `${count} reviews are waiting for you`}
+        </p>
+        <p className="text-small text-ink-muted">
+          Your own, or ones you owe a colleague. They take about ten minutes each.
+        </p>
+      </div>
+      <Button asChild size="sm">
+        <Link href="/performance?view=reviews">Write them</Link>
+      </Button>
     </Card>
   );
 }
@@ -429,6 +456,7 @@ export function HomeView({ user, data }: { user: CurrentUser; data: HomeData }) 
           )}
           <div className="flex flex-col gap-4 lg:col-span-2 lg:col-start-1 lg:row-span-2 lg:row-start-1">
             {data.approvals && data.approvals.count > 0 && <NeedsYou approvals={data.approvals} />}
+            {data.reviewsToWrite > 0 && <ReviewsNudge count={data.reviewsToWrite} />}
             {data.tasks.count > 0 && <YourTasks tasks={data.tasks} today={data.today} />}
             {data.company && <CompanyPulse company={data.company} />}
             {data.team && <TeamDay team={data.team} />}
@@ -439,6 +467,8 @@ export function HomeView({ user, data }: { user: CurrentUser; data: HomeData }) 
             <TeamCard data={data} />
           </div>
           <div className="flex flex-col gap-4 lg:col-start-3 lg:row-start-2">
+            <AnnouncementsCard data={data.announcements} />
+            {data.payslip && <PayslipCard payslip={data.payslip} />}
             <Moments moments={data.moments} />
             <HolidaysCard holidays={data.holidays} />
           </div>

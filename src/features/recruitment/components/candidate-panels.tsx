@@ -16,6 +16,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/menu";
 import { Card, CardBody, CardHeader } from "@/components/ui/primitives";
+import { RatingInput } from "@/components/ui/rating";
 import { EmptyState } from "@/components/ui/states";
 import { toast } from "@/components/ui/toaster";
 import { cn } from "@/lib/utils";
@@ -25,37 +26,6 @@ import { PIPELINE, STAGE_META, type PipelineStage } from "../logic/pipeline";
 import type { CandidateDetail, RecruitmentOptions } from "../queries";
 import { ConvertDialog } from "./convert-dialog";
 import { RejectDialog } from "./reject-dialog";
-
-/* ─── Rating ───────────────────────────────────────────────────────────── */
-
-function RatingInput({
-  value,
-  onChange,
-}: {
-  value: number | null;
-  onChange: (rating: number | null) => void;
-}) {
-  return (
-    <div role="radiogroup" aria-label="Rating" className="inline-flex items-center gap-0.5">
-      {[1, 2, 3, 4, 5].map((n) => {
-        const on = value != null && n <= value;
-        return (
-          <button
-            key={n}
-            type="button"
-            role="radio"
-            aria-checked={value === n}
-            aria-label={`${n} out of 5`}
-            onClick={() => onChange(value === n ? null : n)}
-            className="grid size-7 place-items-center rounded-xs text-ink-subtle hover:text-accent"
-          >
-            <Star className={cn("size-4.5", on && "fill-current text-accent")} aria-hidden />
-          </button>
-        );
-      })}
-    </div>
-  );
-}
 
 export function Stars({ value }: { value: number }) {
   return (

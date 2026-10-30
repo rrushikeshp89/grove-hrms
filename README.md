@@ -2,7 +2,7 @@
 
 A human resource management system people actually enjoy using: calm, warm, and quietly delightful. It's built as a portfolio project with production-grade engineering.
 
-> **Status: Phase 6 of 9: recruitment, onboarding and offboarding.** The full feature set (directory, attendance, leave, payroll, performance, recruitment, analytics) is planned in [`docs/PLAN.md`](docs/PLAN.md). This README grows with each phase.
+> **Status: Phase 7 of 9: performance, payroll, documents and announcements.** The full feature set (directory, attendance, leave, payroll, performance, recruitment, analytics) is planned in [`docs/PLAN.md`](docs/PLAN.md). This README grows with each phase.
 
 ## Try it
 
@@ -84,6 +84,25 @@ The password is `grove-demo-2026`, and every other employee uses it too. Once yo
   - Tick tasks off with instant feedback. You can tick your own tasks, and the people team can tick anything. Finishing the last one activates the new joiner, with a celebration.
   - Starting offboarding moves someone to notice with their last day and reason, and hands out the tasks.
   - Open tasks show on your Home. Adding an employee by hand starts onboarding too.
+- **Self-service home** also shows your latest payslip, the newest announcements (unread marked) and any reviews waiting for you.
+- **Performance**
+  - Goals with key results and check-ins. Progress comes from the key results, and a status is suggested by comparing it with the time that's passed. Finishing a goal gets a celebration.
+  - Goals line up: company goals, team goals and personal goals can each support the one above.
+  - Review cycles run in steps: self reviews, manager reviews, calibration, then closed. The people team moves a cycle along; results reach people only when it closes.
+  - Self, manager and peer reviews are short forms with a draft, a rating and a clear list of what's missing before you can submit.
+  - Managers and the people team can ask colleagues for peer feedback. Whoever receives it sees it without names.
+- **Payroll** (clearly marked as simulated everywhere)
+  - Salary structures from a standard split of CTC. Revisions apply from a date and never touch a month that's been paid.
+  - A monthly run: draft, review, finalize. Payslips are worked out from attendance, approved leave and holidays, with loss of pay, proration and whole-rupee rounding.
+  - The review screen compares with last month: who joined, who left, and the biggest changes in net pay, with big swings flagged.
+  - Four eyes: whoever prepares a run can't finalize it.
+  - Designed payslips on screen and as PDFs, available to each person once the run is final.
+- **Documents**
+  - A private folder for each person, and a company policy library everyone can read. Uploads are checked for type, size and content before they're stored.
+  - Managers don't get a back door into someone's folder: only the owner and the people team can open private files.
+- **Announcements**
+  - A rich-text editor for the people team, with headings, lists, quotes and links. Post to everyone or to chosen teams and locations, pin the important ones, or keep a draft.
+  - Reactions, unread markers that clear as you read, and for publishers a count of who has read each post and who hasn't.
 - **"Warm Calm" design system**
   - Light and dark themes, with design tokens checked against WCAG AA by a test.
   - Accessible components styled from scratch.

@@ -1,6 +1,6 @@
 # Grove HRMS: Build Plan
 
-> Status: **approved 2026-10-29** with the decisions in §6. Phases 1–6 complete.
+> Status: **approved 2026-10-29** with the decisions in §6. Phases 1–7 complete.
 
 Contents
 
@@ -587,6 +587,16 @@ Every phase ends the same way: typecheck, lint and tests pass with zero errors, 
 - Documents: upload, categories, and a policy library.
 - Announcements: Tiptap editor, reactions, and read tracking.
 - Units: payroll math (proration, LOP, rounding).
+
+- _As built:_
+  - **Payroll** is pure maths in `features/payroll/logic/compute.ts` (structures, payslips, loss of pay, run comparison), shared by the app, the seed and the PDF. Every line is rounded to a whole rupee. Percentage deductions follow the prorated basic or gross, flat ones don't scale and are waived when nothing was paid, and net pay never goes below zero. Loss of pay counts absence, unpaid leave and days outside employment; days that haven't happened yet are paid.
+  - A month can be run once it has ended or it is past the 25th. A run can't be finalized by the person who prepared it. Salary revisions can't start in a finalized month. Taxes are a simple banded percentage and the payslip says so.
+  - PDFs use `@react-pdf/renderer` with the built-in fonts, which lack the rupee sign, so they print "INR". Colours come from `lib/pdf-theme.ts`, since PDFs can't read CSS variables.
+  - **Performance:** goal progress is the average of its key results, with a status suggestion from progress against elapsed time. Cycles move DRAFT → SELF_REVIEW → MANAGER_REVIEW → CALIBRATION → CLOSED, and starting one creates every review. Manager ratings and manager text reach their subject only at CLOSED; peer feedback is shown to its subject without names. Peer feedback is requested by the subject's manager chain or HR, and becomes a PEER review plus a FeedbackRequest.
+  - **Documents** go through `lib/storage.ts`, a three-call interface with a local-disk adapter (`.uploads/`, gitignored). `@vercel/blob` was approved for production storage but isn't installed: it currently pulls in a nested `zod` with a high-severity advisory we can't patch. The hosted adapter is a Phase 9 task, after rechecking. Files are served from `/documents/[id]/file` after an access check, with `nosniff` and, for non-PDFs, a policy that allows nothing.
+  - **Announcements** store a Tiptap document. The server rebuilds every body from an allow-list of nodes, marks and link schemes before saving, and the feed renders it as React elements (no raw HTML). Reads are recorded when a card has been mostly on screen for a moment.
+  - New dependencies (all approved in the plan §5): `@react-pdf/renderer`, `@tiptap/react`, `@tiptap/starter-kit` and `@tiptap/pm` (a required peer of Tiptap).
+  - The seed adds salary structures, eleven finalized pay runs (the latest runnable month is left open), 316 goals with key results and check-ins, a closed H1 2026 cycle with every review, H2 2026 in its self-review phase, six policy PDFs, an employment agreement in every folder, and eight announcements.
 
 **Phase 8: Platform features**
 

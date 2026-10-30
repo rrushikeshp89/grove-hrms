@@ -1,7 +1,15 @@
 "use client";
 
 import { format } from "date-fns";
-import { ArrowRight, Cake, ChartLine, PartyPopper, Sparkles, Sprout } from "lucide-react";
+import {
+  ArrowRight,
+  Cake,
+  ChartLine,
+  Megaphone,
+  PartyPopper,
+  Sparkles,
+  Sprout,
+} from "lucide-react";
 import Link from "next/link";
 import * as React from "react";
 
@@ -14,7 +22,7 @@ import { Stat } from "@/components/ui/stat";
 import { EmptyState } from "@/components/ui/states";
 import { toast } from "@/components/ui/toaster";
 import { formatDuration } from "@/features/attendance/logic/evaluate";
-import { formatPercent } from "@/lib/format";
+import { formatMoney, formatPercent } from "@/lib/format";
 import { dbDate } from "@/lib/tz";
 
 import type { HomeData, HomeMoment } from "../queries";
@@ -121,6 +129,75 @@ export function YourMonth({
           format={(n) => String(Math.round(n * 2) / 2)}
           suffix="days"
         />
+      </CardBody>
+    </Card>
+  );
+}
+
+/* ─── Announcements ────────────────────────────────────────────────────── */
+
+export function AnnouncementsCard({ data }: { data: HomeData["announcements"] }) {
+  return (
+    <Card>
+      <CardHeader
+        title="Announcements"
+        description={data.unread ? `${data.unread} you haven't read` : "You're all caught up"}
+        action={<SeeAll href="/announcements">All</SeeAll>}
+      />
+      {data.items.length === 0 ? (
+        <EmptyState
+          compact
+          icon={Megaphone}
+          title="Nothing new"
+          description="Company news from the people team appears here."
+        />
+      ) : (
+        <ul className="flex flex-col px-5 pt-1 pb-3">
+          {data.items.map((a) => (
+            <li key={a.id} className="border-b border-hairline last:border-0">
+              <Link href="/announcements" className="block py-3 hover:text-accent">
+                <span className="flex items-center gap-2 text-body font-medium text-ink">
+                  {!a.read && (
+                    <span
+                      className="size-2 shrink-0 rounded-full bg-accent"
+                      role="img"
+                      aria-label="Unread"
+                    />
+                  )}
+                  <span className="truncate">{a.title}</span>
+                </span>
+                <span className="mt-0.5 line-clamp-2 block text-small text-ink-muted">
+                  {a.preview}
+                </span>
+              </Link>
+            </li>
+          ))}
+        </ul>
+      )}
+    </Card>
+  );
+}
+
+/* ─── Latest payslip ───────────────────────────────────────────────────── */
+
+export function PayslipCard({ payslip }: { payslip: NonNullable<HomeData["payslip"]> }) {
+  return (
+    <Card>
+      <CardHeader
+        title="Latest payslip"
+        description={payslip.label}
+        action={<SeeAll href="/pay">Pay</SeeAll>}
+      />
+      <CardBody className="flex items-baseline justify-between gap-3">
+        <div>
+          <p className="eyebrow">Net pay</p>
+          <p className="font-display-soft num text-display font-medium text-ink">
+            {formatMoney(payslip.netMinor)}
+          </p>
+        </div>
+        <Button asChild variant="secondary" size="sm">
+          <Link href={`/pay/${payslip.id}`}>View</Link>
+        </Button>
       </CardBody>
     </Card>
   );

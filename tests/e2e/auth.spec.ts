@@ -44,15 +44,21 @@ test.describe("sign in", () => {
 
 const EXPECTED_NAV: Record<DemoRole, { sees: string[]; hidden: string[] }> = {
   EMPLOYEE: {
-    sees: ["Home", "Settings"],
+    sees: ["Home", "Performance", "Pay", "Announcements", "Documents", "Settings"],
     hidden: ["Roles & access", "Analytics", "Approvals", "Hiring", "Onboarding"],
   },
   TEAM_MANAGER: {
     sees: ["Home", "Approvals", "Hiring", "Onboarding", "Settings"],
-    hidden: ["Roles & access", "Analytics"],
+    hidden: ["Roles & access", "Analytics", "Payroll"],
   },
-  HR_MANAGER: { sees: ["Home", "Analytics", "Roles & access", "Settings"], hidden: [] },
-  SUPER_ADMIN: { sees: ["Home", "Analytics", "Roles & access", "Settings"], hidden: [] },
+  HR_MANAGER: {
+    sees: ["Home", "Analytics", "Payroll", "Performance", "Roles & access", "Settings"],
+    hidden: [],
+  },
+  SUPER_ADMIN: {
+    sees: ["Home", "Analytics", "Payroll", "Performance", "Roles & access", "Settings"],
+    hidden: [],
+  },
 };
 
 test.describe("each role", () => {
@@ -70,7 +76,7 @@ test.describe("each role", () => {
         await expect(main.getByRole("heading", { name: "Your team today" })).toBeVisible();
       }
       if (role === "EMPLOYEE") {
-        await expect(main.getByText("Teammates")).toBeVisible();
+        await expect(main.getByText("Teammates", { exact: true })).toBeVisible();
         await expect(main.getByRole("heading", { name: "Your team today" })).toHaveCount(0);
       }
       // Everyone with an employee record gets the self-service blocks.

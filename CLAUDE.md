@@ -23,7 +23,7 @@ We build one phase at a time; each phase ends with typecheck + lint + tests gree
 - Server → client props must be serializable. Never pass Lucide icon components across that boundary; resolve them on the client (see `AppShell`, which takes a role and builds the navigation itself).
 - TanStack Table **v9**: register features with `tableFeatures({...})`, use `useTable` and `table.FlexRender`. Use `columnsFor<T>()` from `components/ui/data-table.tsx`.
 - Zod 4 (`{ error: "…" }` messages), React Hook Form with `@hookform/resolvers/zod`.
-- react-day-picker v10, Recharts 3, Motion (`motion/react`), radix-ui (unified package), cmdk, @dnd-kit (kanban).
+- react-day-picker v10, Recharts 3, Motion (`motion/react`), radix-ui (unified package), cmdk, @dnd-kit (kanban), @react-pdf/renderer (server-only PDFs), Tiptap (announcement editor).
 - Theme, density and sidebar state live on `<html>`, set before paint by `preferencesScript` (`lib/preferences.ts`). Read them with `useTheme()` and `useHtmlData()`. There is no next-themes.
 - Prisma 7 (`prisma-client` generator → `src/generated/prisma`, gitignored, regenerated on `postinstall`), config in `prisma.config.ts` (loads `.env.local`). The client in `lib/db.ts` is lazy, so builds don't need credentials.
 - Better Auth 1.7 (`lib/auth.ts`): email/password, DB sessions with a 5-minute cookie cache, `nextCookies()` last. Sign-up is disabled; accounts come from the seed or HR. Demo accounts can't change or reset passwords (before-hook).
@@ -80,6 +80,11 @@ tests/e2e/               Playwright
 - **Home.** `features/home/queries.ts` loads each block only for roles whose permissions call for it. The layout puts the clock first on phones and in the side column on wide screens.
 - **Hiring board.** Drag and drop uses `@dnd-kit`. Board state is local and optimistic; a failed move restores the snapshot taken at drag start. The page keys the board on candidate positions, so a server refresh resets it. Keep `boardKeyboard` (left/right between columns) when touching sensors.
 - **Checklists.** Start them with `startChecklist(tx, …)` from `features/lifecycle/start.ts`; it's idempotent and copies the template. Create employees through `insertEmployee` in `features/people/create.ts`, never directly.
+- **Payroll maths** lives in `features/payroll/logic/compute.ts` and nowhere else. Money is paise, rounded to whole rupees per line. Payslips freeze their lines at generation, so a finalized run never changes. Everything says "Simulated payroll".
+- **Files.** Store and read uploads only through `lib/storage.ts`, and serve them through a route that calls `canSeeDocument`. Validate with `uploadProblem` on both the client and the server.
+- **Rich text.** Never render stored Tiptap JSON directly: pass it through `sanitizeDoc` on write and read, and render with `RichText` (React elements only).
+- **Reviews.** Visibility rules are in `features/performance/queries.ts` (`reviewDetail`, `cycleOverview`) and `logic/goals.ts` (`canWriteReview`, `resultsShared`). Don't add a view of a rating without going through them.
+- **Server pages can't export constants.** Put shared values in a plain module (see `features/payroll/format.ts`), and route handlers can't set `runtime` with Cache Components.
 - **Seed.** Add each module's history as its own step under `prisma/seed/`. Keep it deterministic (`createRng(SEED)`); everyone uses `DEMO_PASSWORD`.
 
 - Register palette commands and shortcuts with `useRegisterActions([...])` (memoized). One registry feeds the palette, the key handler and the `?` sheet. Single-key shortcuts are ignored while typing; set `global: true` only for modifier chords.
@@ -90,4 +95,5 @@ tests/e2e/               Playwright
 
 - Supabase Postgres. The runtime uses the pooled URL (:6543, `DATABASE_URL`) and migrations/seed use the direct URL (:5432, `DIRECT_URL`), both in `.env.local` (never committed; see `.env.example`).
 - Without Supabase credentials, a local stand-in works: run PGlite's socket server (`@electric-sql/pglite-socket`, installed outside the repo) on :54329 and set `DATABASE_URL=postgresql://postgres:postgres@127.0.0.1:54329/postgres?sslmode=disable` plus `DATABASE_POOL_MAX=1` (PGlite interleaves concurrent connections).
+- Uploaded documents are written to `.uploads/` (override with `UPLOAD_DIR`). The seed recreates the demo files there.
 - GitHub remote: `rrushikeshp89/grove-hrms` (private).

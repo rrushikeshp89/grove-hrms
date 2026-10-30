@@ -16,8 +16,12 @@ import { PrismaClient } from "../../src/generated/prisma/client";
 import { DEMO_PASSWORD } from "../../src/lib/env";
 import { minutesInDay, todayIn } from "../../src/lib/tz";
 import { RELATIONSHIPS } from "./names";
+import { seedAnnouncements } from "./announcements";
+import { seedDocuments } from "./documents";
 import { seedHiring } from "./hiring";
 import { seedLifecycle } from "./lifecycle";
+import { seedPayroll } from "./payroll";
+import { seedPerformance } from "./performance";
 import { seedProfiles } from "./profiles";
 import { seedTime } from "./time";
 import { buildPeople, byHierarchy, DEPARTMENTS, type PersonSeed } from "./people";
@@ -353,6 +357,39 @@ async function main() {
     hrId: employeeIds.get("hr")!,
   });
 
+  // ── Goals and review cycles ───────────────────────────────────────────
+  const performance = await seedPerformance(db, rng, {
+    today: todayIn(),
+    demoIds: {
+      arjun: employeeIds.get("arjun")!,
+      priya: employeeIds.get("em_web")!,
+      fatima: employeeIds.get("fatima")!,
+      hr: employeeIds.get("hr")!,
+    },
+  });
+
+  // ── Documents ─────────────────────────────────────────────────────────
+  const documents = await seedDocuments(db, rng, {
+    today: todayIn(),
+    hrId: employeeIds.get("hr")!,
+    arjunId: employeeIds.get("arjun")!,
+    priyaId: employeeIds.get("em_web")!,
+  });
+
+  // ── Announcements ─────────────────────────────────────────────────────
+  const announcements = await seedAnnouncements(db, rng, {
+    today: todayIn(),
+    ids: employeeIds,
+    arjunId: employeeIds.get("arjun")!,
+  });
+
+  // ── Simulated payroll ─────────────────────────────────────────────────
+  const payroll = await seedPayroll(db, rng, {
+    today: todayIn(),
+    preparerId: employeeIds.get("hr")!,
+    finalizerId: employeeIds.get("coo")!,
+  });
+
   const [employeeCount, userCount] = await Promise.all([db.employee.count(), db.user.count()]);
   const demo = await db.user.findMany({
     where: { isDemo: true },
@@ -371,6 +408,18 @@ async function main() {
   );
   console.log(
     `  ${lifecycle.checklists} onboarding/offboarding checklists (${lifecycle.running} running); ${lifecycle.newJoiner} joins ${lifecycle.joinDate}`,
+  );
+  console.log(
+    `  ${payroll.structures} salary structures, ${payroll.runs} finalized pay runs (${payroll.payslips} payslips)`,
+  );
+  console.log(
+    `  ${performance.goals} goals (${performance.keyResults} key results, ${performance.checkIns} check-ins), ${performance.reviews} reviews`,
+  );
+  console.log(
+    `  ${documents.policies} policies and ${documents.files - documents.policies} personal documents`,
+  );
+  console.log(
+    `  ${announcements.published} announcements (${announcements.reads} reads, ${announcements.reactions} reactions)`,
   );
   console.log(`  Demo logins (password "${DEMO_PASSWORD}"):`);
   for (const d of demo) console.log(`    ${d.role.padEnd(13)} ${d.email}`);
