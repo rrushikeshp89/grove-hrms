@@ -1,6 +1,6 @@
 # Grove HRMS: Build Plan
 
-> Status: **approved 2026-10-29** with the decisions in §6. Phases 1–4 complete.
+> Status: **approved 2026-10-29** with the decisions in §6. Phases 1–5 complete.
 
 Contents
 
@@ -554,6 +554,14 @@ Every phase ends the same way: typecheck, lint and tests pass with zero errors, 
 
 - Role-tailored homes (time-aware greeting, today's info, Moments widget, employee self-service home that works on mobile).
 - HR/Admin analytics: headcount, departments, attrition, leave trends, an attendance heatmap and the hiring funnel, with date-range filters and an accessible data fallback.
+
+- _As built:_
+  - The seed now includes recruitment history: a closed posting and full stage trail behind every hire of the last ~14 months (the hired candidate links to the employee), the other candidates each role saw, and seven current roles (open, on hold and draft). Phase 6 builds the ATS on this data.
+  - Report queries (`features/analytics/queries.ts`) take plain filters, never the session, and are cached with `"use cache"` for a few minutes. The page checks `analytics.read` before calling them.
+  - Metrics are pure functions with unit tests: range parsing, week or month buckets, headcount, attrition, the funnel, the arrival grid and leave by period. Ranges up to about three months chart by week.
+  - Department figures use each person's current department. Department moves over time aren't tracked yet.
+  - Attrition is leavers divided by the average of opening and closing headcount, annualized so ranges compare.
+  - Homes are composed by permission rather than role name. Payslip and announcements cards join the self-service home in Phase 7, alongside those modules.
 
 **Phase 6: Recruitment and lifecycle**
 

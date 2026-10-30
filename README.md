@@ -2,7 +2,7 @@
 
 A human resource management system people actually enjoy using: calm, warm, and quietly delightful. It's built as a portfolio project with production-grade engineering.
 
-> **Status: Phase 4 of 9: attendance, leave, holidays and approvals.** The full feature set (directory, attendance, leave, payroll, performance, recruitment, analytics) is planned in [`docs/PLAN.md`](docs/PLAN.md). This README grows with each phase.
+> **Status: Phase 5 of 9: role-tailored homes and analytics.** The full feature set (directory, attendance, leave, payroll, performance, recruitment, analytics) is planned in [`docs/PLAN.md`](docs/PLAN.md). This README grows with each phase.
 
 ## Try it
 
@@ -60,9 +60,18 @@ The password is `grove-demo-2026`, and every other employee uses it too. Once yo
   - Approve one or select many, with optimistic updates. Declining asks for a short note.
   - HR and admins can switch to every open request. There's also a list of recent decisions.
 - **Command palette people search.** Ctrl+K finds any colleague by name or ID.
-- **Role-aware home**
-  - Your profile, team and upcoming holidays.
-  - Company-wide numbers for HR and admins.
+- **Role-tailored home**
+  - A time-aware greeting with a one-line summary of your day: clocked in or not, requests waiting on you, birthdays.
+  - Everyone gets the clock, leave balances with what's coming up, this month's attendance, Moments (birthdays, work anniversaries, new joiners) and holidays. On a phone the clock comes first.
+  - Managers also see requests waiting on them and their team's day at a glance.
+  - HR and admins also get a company pulse: headcount over the year, attrition, joiners, notice periods, open roles and who's in today.
+  - Your own work anniversary gets a small celebration, once.
+- **Analytics** (HR and admins)
+  - Headcount over time, arrivals and departures, department and contract mix.
+  - Attrition: annualized rate, rate per period, exit reasons and typical tenure at exit.
+  - Time off by type and per person by department. Attendance as a weekday × arrival-time heatmap with on-time trends.
+  - Hiring funnel with stage conversion, time to hire, open roles and a source breakdown.
+  - Filter by period (presets or custom dates) and department. Filters live in the URL, charts switch between weekly and monthly, and every chart has a table view.
 - **"Warm Calm" design system**
   - Light and dark themes, with design tokens checked against WCAG AA by a test.
   - Accessible components styled from scratch.

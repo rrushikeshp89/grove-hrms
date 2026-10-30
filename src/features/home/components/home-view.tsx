@@ -1,28 +1,24 @@
 import { format } from "date-fns";
-import {
-  CalendarDays,
-  Check,
-  Inbox,
-  MapPin,
-  PartyPopper,
-  ShieldCheck,
-  UserPlus,
-  Users,
-} from "lucide-react";
+import { CalendarDays, CalendarPlus, Inbox, PartyPopper, ShieldCheck, Users } from "lucide-react";
+import Link from "next/link";
 
 import { Avatar } from "@/components/ui/avatar";
 import { Badge, StatusPill, STATUS_TONES } from "@/components/ui/badge";
-import { Card, CardBody, CardHeader, DescriptionList } from "@/components/ui/primitives";
-import { ProgressBar } from "@/components/ui/progress";
-import { Stat } from "@/components/ui/stat";
+import { Button } from "@/components/ui/button";
+import { Card, CardBody, CardHeader } from "@/components/ui/primitives";
+import { ProgressRing } from "@/components/ui/progress";
 import { EmptyState } from "@/components/ui/states";
+import { ClockCard } from "@/features/attendance/components/clock-card";
+import { formatDuration } from "@/features/attendance/logic/evaluate";
 import { tenure } from "@/lib/dates";
-import { GRANTS, PERMISSIONS, type Permission, type Scope } from "@/lib/rbac";
 import { ROLE_LABELS } from "@/lib/roles";
+import { clockTime, dbDate, type ISODate } from "@/lib/tz";
 import type { CurrentUser } from "@/server/session";
 
 import type { HomeData, HomePerson } from "../queries";
+import { DayBar } from "./day-bar";
 import { Greeting } from "./greeting";
+import { CompanyPulse, Moments, SeeAll, YourMonth } from "./widgets";
 
 const STATUS_LABEL = {
   ONBOARDING: ["Onboarding", STATUS_TONES.onboarding],
@@ -34,6 +30,17 @@ const STATUS_LABEL = {
 
 const displayName = (p: Pick<HomePerson, "firstName" | "lastName" | "preferredName">) =>
   `${p.preferredName ?? p.firstName} ${p.lastName}`;
+
+const fmt = (n: number) => (Number.isInteger(n) ? String(n) : n.toFixed(1));
+
+/** "Tue 3 Nov", "3 – 5 Nov", "28 Oct – 2 Nov". */
+function shortRange(start: ISODate, end: ISODate) {
+  const s = dbDate(start);
+  const e = dbDate(end);
+  if (start === end) return format(s, "EEE d MMM");
+  if (start.slice(0, 7) === end.slice(0, 7)) return `${format(s, "d")} – ${format(e, "d MMM")}`;
+  return `${format(s, "d MMM")} – ${format(e, "d MMM")}`;
+}
 
 function PersonRow({ person, aside }: { person: HomePerson; aside?: React.ReactNode }) {
   const [label, tone] = STATUS_LABEL[person.status];
@@ -50,42 +57,154 @@ function PersonRow({ person, aside }: { person: HomePerson; aside?: React.ReactN
   );
 }
 
-function ProfileCard({ me }: { me: NonNullable<HomeData["me"]> }) {
+/* ─── Approvals waiting on you ─────────────────────────────────────────── */
+
+function NeedsYou({ approvals }: { approvals: NonNullable<HomeData["approvals"]> }) {
   return (
-    <Card className="flex flex-col">
-      <CardBody className="flex flex-col items-center gap-3 pt-6 text-center">
-        <Avatar name={displayName(me)} src={me.avatarUrl} size="xl" />
-        <div>
-          <p className="font-display-soft text-title font-medium text-ink">{displayName(me)}</p>
-          <p className="text-body text-ink-muted">{me.designation.title}</p>
-        </div>
-        <p className="flex items-center gap-1.5 text-small text-ink-subtle">
-          <MapPin className="size-3.5" aria-hidden />
-          {me.department.name} · {me.location.name}
-        </p>
-      </CardBody>
-      <CardBody className="border-t border-hairline">
-        <DescriptionList
-          columns={1}
-          className="gap-y-3"
-          items={[
-            { term: "Employee ID", detail: me.employeeCode, mono: true },
-            {
-              term: "Joined",
-              detail: `${format(me.joinDate, "d MMM yyyy")} · ${tenure(me.joinDate)}`,
-            },
-            {
-              term: "Reports to",
-              detail: me.manager
-                ? displayName(me.manager)
-                : "No one. You're at the top of the org chart.",
-            },
-          ]}
-        />
+    <Card>
+      <CardHeader
+        title="Waiting on you"
+        description={`${approvals.count} request${approvals.count === 1 ? "" : "s"} to decide`}
+        action={<SeeAll href="/approvals">Open inbox</SeeAll>}
+      />
+      <ul className="flex flex-col px-5 pt-1 pb-3">
+        {approvals.items.map((r) => (
+          <li
+            key={r.id}
+            className="flex items-center gap-3 border-b border-hairline py-3 last:border-0"
+          >
+            <Avatar name={r.requester.name} src={r.requester.avatarUrl} size="sm" />
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-body font-medium text-ink">{r.requester.name}</p>
+              <p className="truncate text-small text-ink-muted">
+                {r.leave
+                  ? `${r.leave.type} · ${shortRange(r.leave.start, r.leave.end)} · ${fmt(r.leave.days)} ${r.leave.days === 1 ? "day" : "days"}`
+                  : r.correction
+                    ? `Attendance correction · ${format(dbDate(r.correction.date), "EEE d MMM")}`
+                    : "Request"}
+              </p>
+            </div>
+            <span className="hidden text-small text-ink-subtle sm:inline">
+              Sent {format(new Date(r.createdAt), "d MMM")}
+            </span>
+          </li>
+        ))}
+      </ul>
+    </Card>
+  );
+}
+
+/* ─── Your team's day (managers) ───────────────────────────────────────── */
+
+const ATTENTION = {
+  late: (p: { lateByMinutes: number }) => `${formatDuration(p.lateByMinutes)} late`,
+  notYet: () => "Not in yet",
+  leave: (p: { leave: string | null }) => p.leave ?? "On leave",
+} as const;
+
+function TeamDay({ team }: { team: NonNullable<HomeData["team"]> }) {
+  return (
+    <Card>
+      <CardHeader
+        title="Your team today"
+        description={`${team.total} people across your teams`}
+        action={<SeeAll href="/attendance/team">Team view</SeeAll>}
+      />
+      <CardBody className="flex flex-col gap-4">
+        <DayBar counts={team.counts} total={team.total} />
+        {team.attention.length > 0 && (
+          <ul className="grid gap-x-6 sm:grid-cols-2">
+            {team.attention.map((p) => (
+              <li key={p.id} className="flex items-center gap-3 py-2">
+                <Avatar name={p.name} src={p.avatarUrl} size="sm" />
+                <span className="min-w-0 flex-1 truncate text-body text-ink">{p.name}</span>
+                <span className="text-small text-ink-muted">
+                  {p.state === "late"
+                    ? ATTENTION.late(p)
+                    : p.state === "leave"
+                      ? ATTENTION.leave(p)
+                      : ATTENTION.notYet()}
+                </span>
+              </li>
+            ))}
+          </ul>
+        )}
       </CardBody>
     </Card>
   );
 }
+
+/* ─── Your leave ───────────────────────────────────────────────────────── */
+
+const RING_TONE = { EL: "accent", CL: "highlight", SL: "success" } as const;
+const REQUEST_TONE = { PENDING: "warning", APPROVED: "success" } as const;
+
+function YourLeave({ data }: { data: HomeData }) {
+  return (
+    <Card>
+      <CardHeader
+        title="Your leave"
+        description={`Balances for ${data.today.slice(0, 4)}`}
+        action={
+          <Button asChild variant="secondary" size="sm">
+            <Link href="/leave">
+              <CalendarPlus aria-hidden /> Apply
+            </Link>
+          </Button>
+        }
+      />
+      <CardBody>
+        <ul className="grid grid-cols-3 gap-2">
+          {data.balances.map((b) => {
+            const total = b.summary.accrued + b.summary.carriedForward + b.summary.adjusted;
+            return (
+              <li key={b.typeId} className="flex flex-col items-center gap-2 text-center">
+                <ProgressRing
+                  value={total ? (b.summary.available / total) * 100 : 0}
+                  size={64}
+                  stroke={6}
+                  tone={RING_TONE[b.code as keyof typeof RING_TONE] ?? "accent"}
+                  label={`${b.name}: ${fmt(b.summary.available)} days left`}
+                >
+                  <span className="num text-heading font-semibold text-ink">
+                    {fmt(b.summary.available)}
+                  </span>
+                </ProgressRing>
+                <span className="text-small leading-tight text-ink-muted">{b.name}</span>
+              </li>
+            );
+          })}
+        </ul>
+      </CardBody>
+      <CardBody className="border-t border-hairline">
+        <p className="mb-2 eyebrow">Coming up for you</p>
+        {data.requests.length === 0 ? (
+          <p className="text-small text-ink-muted">
+            Nothing booked. A long weekend is closer than you think.
+          </p>
+        ) : (
+          <ul className="flex flex-col gap-2.5">
+            {data.requests.map((r) => (
+              <li key={r.id} className="flex items-center gap-3">
+                <span className="min-w-0 flex-1">
+                  <span className="block truncate text-body text-ink">{r.type.name}</span>
+                  <span className="block text-small text-ink-muted">
+                    {shortRange(r.start, r.end)} · {fmt(r.days)} {r.days === 1 ? "day" : "days"}
+                  </span>
+                </span>
+                <StatusPill tone={REQUEST_TONE[r.status as keyof typeof REQUEST_TONE]}>
+                  {r.status === "PENDING" ? "Pending" : "Approved"}
+                </StatusPill>
+              </li>
+            ))}
+          </ul>
+        )}
+      </CardBody>
+    </Card>
+  );
+}
+
+/* ─── Team and holidays ────────────────────────────────────────────────── */
 
 function TeamCard({ data }: { data: HomeData }) {
   const me = data.me!;
@@ -98,7 +217,7 @@ function TeamCard({ data }: { data: HomeData }) {
           action={<Users className="size-5 text-ink-subtle" aria-hidden />}
         />
         <CardBody className="pt-1">
-          <ul className="divide-y divide-hairline">
+          <ul className="grid gap-x-6 sm:grid-cols-2">
             {me.reports.map((p) => (
               <PersonRow
                 key={p.id}
@@ -133,62 +252,13 @@ function TeamCard({ data }: { data: HomeData }) {
         {data.teammates.length > 0 && (
           <>
             <p className="mt-4 mb-1 eyebrow">Teammates</p>
-            <ul className="divide-y divide-hairline">
+            <ul className="grid gap-x-6 sm:grid-cols-2">
               {data.teammates.map((p) => (
                 <PersonRow key={p.id} person={p} />
               ))}
             </ul>
           </>
         )}
-      </CardBody>
-    </Card>
-  );
-}
-
-function CompanyCard({ company }: { company: NonNullable<HomeData["company"]> }) {
-  const max = Math.max(...company.departments.map((d) => d.count), 1);
-  return (
-    <Card>
-      <CardHeader title="Company at a glance" description="Everyone currently employed" />
-      <CardBody className="grid gap-8 md:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]">
-        <div className="flex flex-col gap-6">
-          <Stat variant="hero" label="Headcount" value={company.active} context="people" />
-          <div className="grid grid-cols-2 gap-4">
-            <Stat label="Joined, last 30 days" value={company.joiners} />
-            <Stat label="Serving notice" value={company.onNotice} />
-          </div>
-        </div>
-        <div>
-          <p className="mb-3 eyebrow">By department</p>
-          <ul className="flex flex-col gap-2.5">
-            {company.departments.map((d) => (
-              <li
-                key={d.id}
-                className="grid grid-cols-[8.5rem_1fr_2rem] items-center gap-3 text-small"
-              >
-                <span className="truncate text-ink-muted">{d.name}</span>
-                <ProgressBar value={(d.count / max) * 100} label={`${d.name}: ${d.count} people`} />
-                <span className="text-right num font-medium text-ink">{d.count}</span>
-              </li>
-            ))}
-          </ul>
-        </div>
-      </CardBody>
-      <CardBody className="border-t border-hairline">
-        <p className="mb-1 inline-flex items-center gap-1.5 eyebrow">
-          <UserPlus className="size-3.5" aria-hidden /> Newest joiners
-        </p>
-        <ul className="grid gap-x-6 sm:grid-cols-2">
-          {company.recent.map((p) => (
-            <PersonRow
-              key={p.id}
-              person={p}
-              aside={
-                <span className="text-small text-ink-subtle">{format(p.joinDate, "d MMM")}</span>
-              }
-            />
-          ))}
-        </ul>
       </CardBody>
     </Card>
   );
@@ -237,81 +307,98 @@ function HolidaysCard({ holidays }: { holidays: HomeData["holidays"] }) {
   );
 }
 
-const SCOPE_LABEL: Record<Scope, string> = {
-  own: "for yourself",
-  team: "for your team",
-  all: "company-wide",
-};
+/* ─── The greeting's one-line summary ──────────────────────────────────── */
 
-function AccessCard({ user }: { user: CurrentUser }) {
-  const grants = Object.entries(GRANTS[user.role]) as [Permission, Scope][];
-  const shown = grants.filter(([p]) => p !== "employee.read").slice(0, 8);
-  return (
-    <Card>
-      <CardHeader
-        title="What you can do"
-        description={`As ${ROLE_LABELS[user.role]}, checked on the server for every request`}
-        action={<ShieldCheck className="size-5 text-ink-subtle" aria-hidden />}
-      />
-      <CardBody className="pt-2">
-        <ul className="flex flex-col gap-2">
-          {shown.map(([p, scope]) => (
-            <li key={p} className="flex items-start gap-2 text-small">
-              <Check className="mt-0.5 size-3.5 shrink-0 text-success" aria-hidden />
-              <span className="text-ink">
-                {PERMISSIONS[p]} <span className="text-ink-subtle">{SCOPE_LABEL[scope]}</span>
-              </span>
-            </li>
-          ))}
-        </ul>
-        {grants.length > shown.length + 1 && (
-          <p className="mt-3 text-small text-ink-subtle">
-            and {grants.length - shown.length - 1} more
-          </p>
-        )}
-      </CardBody>
-    </Card>
+function summaryFor(data: HomeData): string {
+  const parts: string[] = [];
+  const c = data.clock;
+  if (c) {
+    if (c.holiday) parts.push(`It's ${c.holiday}. Enjoy the day off.`);
+    else if (c.leave?.portion === 1)
+      parts.push(`You're on ${c.leave.type.toLowerCase()} today. Enjoy it.`);
+    else if (!c.workDay) parts.push("It's the weekend. Nothing needs you here.");
+    else if (c.clockInAt && c.clockOutAt)
+      parts.push(`You clocked out at ${clockTime(new Date(c.clockOutAt), c.tz)}. Nice work today.`);
+    else if (c.clockInAt)
+      parts.push(`You've been in since ${clockTime(new Date(c.clockInAt), c.tz)}.`);
+    else parts.push("You haven't clocked in yet.");
+  }
+  if (data.approvals?.count)
+    parts.push(
+      `${data.approvals.count} request${data.approvals.count === 1 ? " is" : "s are"} waiting on you.`,
+    );
+  else if (data.team)
+    parts.push(
+      `${data.team.counts.in + data.team.counts.late + data.team.counts.out} of your ${data.team.total} people are in.`,
+    );
+  if (data.company && !data.approvals?.count)
+    parts.push(
+      `${data.company.headcount} people at Northwind Grove, ${data.company.joiners} new this month.`,
+    );
+  const birthdays = data.moments.filter(
+    (m) => m.kind === "birthday" && m.daysAway === 0 && !m.isMe,
   );
+  if (birthdays.length)
+    parts.push(
+      birthdays.length === 1
+        ? `It's ${birthdays[0]!.name.split(" ")[0]}'s birthday.`
+        : `${birthdays.length} birthdays today.`,
+    );
+  return parts.join(" ") || "Here's what's happening today.";
 }
+
+/* ─── Page ─────────────────────────────────────────────────────────────── */
 
 export function HomeView({ user, data }: { user: CurrentUser; data: HomeData }) {
   const me = data.me;
   const firstName = me?.preferredName ?? me?.firstName ?? user.name.split(" ")[0] ?? "there";
-  const reports = me?.reports.length ?? 0;
-  const summary = data.company
-    ? `${data.company.active} people across ${data.company.departments.length} departments, ${data.company.joiners} joined in the last 30 days.`
-    : reports > 0
-      ? `You look after ${reports} people. Here's your team and what's coming up.`
-      : "Here's your team and what's coming up.";
 
   return (
     <div className="flex flex-col gap-8">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-        <Greeting firstName={firstName} summary={summary} />
+        <Greeting firstName={firstName} summary={summaryFor(data)} />
         <Badge tone="accent" size="md" className="self-start sm:self-auto">
           <ShieldCheck aria-hidden /> {ROLE_LABELS[user.role]}
         </Badge>
       </div>
 
       {!me ? (
-        <Card>
-          <EmptyState
-            icon={Inbox}
-            satellites={[Users]}
-            title="Your account isn't linked to an employee yet"
-            description="HR links accounts to employee records. Once that's done, your profile and team show up here."
-          />
-        </Card>
+        <div className="flex flex-col gap-4">
+          {data.company && <CompanyPulse company={data.company} />}
+          <Card>
+            <EmptyState
+              icon={Inbox}
+              satellites={[Users]}
+              title="Your account isn't linked to an employee yet"
+              description="HR links accounts to employee records. Once that's done, your attendance, leave and team show up here."
+            />
+          </Card>
+        </div>
       ) : (
-        <div className="grid gap-4 lg:grid-cols-3">
-          <div className="flex flex-col gap-4">
-            <ProfileCard me={me} />
-            <HolidaysCard holidays={data.holidays} />
-          </div>
-          <div className="flex flex-col gap-4 lg:col-span-2">
-            {data.company && <CompanyCard company={data.company} />}
+        // Phones read top to bottom: the clock, then what needs you, then the rest.
+        // Wide screens keep the clock, moments and holidays in a side column.
+        <div className="grid items-start gap-4 lg:grid-cols-3 lg:grid-rows-[auto_1fr]">
+          {data.clock && (
+            <section aria-label="Today" className="lg:col-start-3 lg:row-start-1">
+              <ClockCard
+                key={`${data.clock.today}-${data.clock.clockInAt}-${data.clock.clockOutAt}`}
+                today={data.clock}
+              />
+            </section>
+          )}
+          <div className="flex flex-col gap-4 lg:col-span-2 lg:col-start-1 lg:row-span-2 lg:row-start-1">
+            {data.approvals && data.approvals.count > 0 && <NeedsYou approvals={data.approvals} />}
+            {data.company && <CompanyPulse company={data.company} />}
+            {data.team && <TeamDay team={data.team} />}
+            <YourLeave data={data} />
+            {data.month && (
+              <YourMonth month={data.month} label={format(dbDate(data.today), "MMMM")} />
+            )}
             <TeamCard data={data} />
-            <AccessCard user={user} />
+          </div>
+          <div className="flex flex-col gap-4 lg:col-start-3 lg:row-start-2">
+            <Moments moments={data.moments} />
+            <HolidaysCard holidays={data.holidays} />
           </div>
         </div>
       )}

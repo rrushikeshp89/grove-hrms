@@ -2,6 +2,7 @@ import {
   Blocks,
   Building2,
   CalendarDays,
+  ChartLine,
   Clock,
   House,
   Inbox,
@@ -107,6 +108,19 @@ export const APP_NAVIGATION: NavGroup[] = [
         icon: Building2,
         shortcut: "g d",
         keywords: ["teams", "designations", "titles"],
+      },
+    ],
+  },
+  {
+    label: "Insights",
+    items: [
+      {
+        href: "/analytics",
+        label: "Analytics",
+        icon: ChartLine,
+        permission: "analytics.read",
+        shortcut: "g n",
+        keywords: ["reports", "headcount", "attrition", "hiring", "funnel", "trends"],
       },
     ],
   },

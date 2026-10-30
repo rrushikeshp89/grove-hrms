@@ -182,6 +182,23 @@ export async function recentDecisions(user: CurrentUser) {
   return Promise.all(rows.map(shape));
 }
 
+/** The oldest few requests waiting on this person, for the home screen. */
+export async function waitingOnMe(user: CurrentUser, take = 3) {
+  const me = user.employee?.id;
+  if (!me) return { items: [], count: 0 };
+  const where = {
+    status: "PENDING",
+    steps: { some: { status: "PENDING", approverId: me } },
+  } satisfies Prisma.RequestWhereInput;
+  const [rows, count] = await Promise.all([
+    db.request.findMany({ where, orderBy: { createdAt: "asc" }, select: requestSelect, take }),
+    db.request.count({ where }),
+  ]);
+  return { items: await Promise.all(rows.map(shape)), count };
+}
+
+export type WaitingItem = Awaited<ReturnType<typeof waitingOnMe>>["items"][number];
+
 /** Badge count for navigation. */
 export async function pendingCount(user: CurrentUser) {
   const me = user.employee?.id;

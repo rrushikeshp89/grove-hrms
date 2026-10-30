@@ -43,16 +43,38 @@ test.describe("sign in", () => {
 });
 
 const EXPECTED_NAV: Record<DemoRole, { sees: string[]; hidden: string[] }> = {
-  EMPLOYEE: { sees: ["Home", "Settings"], hidden: ["Roles & access"] },
-  TEAM_MANAGER: { sees: ["Home", "Settings"], hidden: ["Roles & access"] },
-  HR_MANAGER: { sees: ["Home", "Roles & access", "Settings"], hidden: [] },
-  SUPER_ADMIN: { sees: ["Home", "Roles & access", "Settings"], hidden: [] },
+  EMPLOYEE: { sees: ["Home", "Settings"], hidden: ["Roles & access", "Analytics", "Approvals"] },
+  TEAM_MANAGER: {
+    sees: ["Home", "Approvals", "Settings"],
+    hidden: ["Roles & access", "Analytics"],
+  },
+  HR_MANAGER: { sees: ["Home", "Analytics", "Roles & access", "Settings"], hidden: [] },
+  SUPER_ADMIN: { sees: ["Home", "Analytics", "Roles & access", "Settings"], hidden: [] },
 };
 
 test.describe("each role", () => {
   for (const role of Object.keys(ROLES) as DemoRole[]) {
     test(`${role} gets a tailored home and navigation`, async ({ page, isMobile }) => {
       await signInAs(page, role);
+      const main = page.locator("main");
+      if (role === "HR_MANAGER" || role === "SUPER_ADMIN") {
+        await expect(main.getByText("Company at a glance")).toBeVisible();
+      } else {
+        await expect(main.getByText("Company at a glance")).toHaveCount(0);
+      }
+      if (role === "TEAM_MANAGER") {
+        await expect(main.getByText("8 direct reports")).toBeVisible();
+        await expect(main.getByRole("heading", { name: "Your team today" })).toBeVisible();
+      }
+      if (role === "EMPLOYEE") {
+        await expect(main.getByText("Teammates")).toBeVisible();
+        await expect(main.getByRole("heading", { name: "Your team today" })).toHaveCount(0);
+      }
+      // Everyone with an employee record gets the self-service blocks.
+      for (const title of ["Your leave", "Your month", "Moments"])
+        await expect(main.getByRole("heading", { name: title })).toBeVisible();
+
+      // The mobile navigation is a modal, so check the page before opening it.
       if (isMobile) {
         await retryUntil(
           () => page.getByRole("button", { name: "Open navigation" }).click(),
@@ -65,15 +87,6 @@ test.describe("each role", () => {
         await expect(nav.getByRole("link", { name: label })).toBeVisible();
       for (const label of EXPECTED_NAV[role].hidden)
         await expect(nav.getByRole("link", { name: label })).toHaveCount(0);
-
-      const main = page.locator("main");
-      if (role === "HR_MANAGER" || role === "SUPER_ADMIN") {
-        await expect(main.getByText("Company at a glance")).toBeVisible();
-      } else {
-        await expect(main.getByText("Company at a glance")).toHaveCount(0);
-      }
-      if (role === "TEAM_MANAGER") await expect(main.getByText("8 direct reports")).toBeVisible();
-      if (role === "EMPLOYEE") await expect(main.getByText("Teammates")).toBeVisible();
     });
   }
 

@@ -5,8 +5,8 @@
  *   npm run db:seed
  *
  * Seeds the organization, people (with bios and promotion history),
- * sign-in accounts and reference data. Later phases add their module history (attendance, leave, payroll…)
- * as separate steps in this folder.
+ * sign-in accounts and reference data, then each module's history
+ * (attendance and leave, recruitment, …) as its own step in this folder.
  */
 import { faker } from "@faker-js/faker";
 import { PrismaPg } from "@prisma/adapter-pg";
@@ -16,6 +16,7 @@ import { PrismaClient } from "../../src/generated/prisma/client";
 import { DEMO_PASSWORD } from "../../src/lib/env";
 import { minutesInDay, todayIn } from "../../src/lib/tz";
 import { RELATIONSHIPS } from "./names";
+import { seedHiring } from "./hiring";
 import { seedProfiles } from "./profiles";
 import { seedTime } from "./time";
 import { buildPeople, byHierarchy, DEPARTMENTS, type PersonSeed } from "./people";
@@ -341,6 +342,9 @@ async function main() {
     hrApproverId: employeeIds.get("hr")!,
   });
 
+  // ── Recruitment history ───────────────────────────────────────────────
+  const hiring = await seedHiring(db, rng, { today: todayIn(), fakerSeed: SEED + 1 });
+
   const [employeeCount, userCount] = await Promise.all([db.employee.count(), db.user.count()]);
   const demo = await db.user.findMany({
     where: { isDemo: true },
@@ -353,6 +357,9 @@ async function main() {
   console.log(`  ${promotions} past promotions in the audit log`);
   console.log(
     `  ${time.attendance} attendance days, ${time.leaveRequests} leave requests, ${time.corrections} corrections (${time.pending} pending)`,
+  );
+  console.log(
+    `  ${hiring.jobs} job postings (${hiring.open} open), ${hiring.candidates} candidates behind ${hiring.hires} hires`,
   );
   console.log(`  Demo logins (password "${DEMO_PASSWORD}"):`);
   for (const d of demo) console.log(`    ${d.role.padEnd(13)} ${d.email}`);

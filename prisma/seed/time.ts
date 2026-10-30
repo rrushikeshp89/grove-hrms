@@ -502,7 +502,9 @@ export async function seedTime(
       const leave = leaveByDay.get(day) ?? 0;
       if (leave >= 1) continue;
       if (rng.chance(0.004)) continue; // a rare unexplained absence
-      let inMin = habit + gauss(rng) * spread;
+      // Mondays start a little slower, Fridays a touch.
+      const weekdayDrift = isoWeekday(day) === 1 ? 7 : isoWeekday(day) === 5 ? 3 : 0;
+      let inMin = habit + weekdayDrift + gauss(rng) * spread;
       // A nine-hour shift, give or take; most people stay a little longer.
       let outMin = inMin + 9 * 60 + 12 + gauss(rng) * 18;
       if (rng.chance(0.04)) outMin = inMin + 6 * 60 + rng.int(0, 60); // left early

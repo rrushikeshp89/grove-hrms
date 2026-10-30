@@ -179,6 +179,7 @@ export function TrendArea({
   series,
   format,
   zeroBased = false,
+  domain,
 }: {
   data: Record<string, string | number>[];
   x: string;
@@ -186,6 +187,8 @@ export function TrendArea({
   format?: (n: number) => string;
   /** Counts that only drift (headcount) read better on a fitted axis. */
   zeroBased?: boolean;
+  /** A fixed axis, for ratios where a fitted one would exaggerate noise. */
+  domain?: [number, number];
 }) {
   const id = React.useId().replace(/:/g, "");
   return (
@@ -206,9 +209,9 @@ export function TrendArea({
         <XAxis dataKey={x} {...axis} dy={6} />
         <YAxis
           {...axis}
-          width={44}
-          allowDecimals={false}
-          domain={zeroBased ? [0, "auto"] : ["auto", "auto"]}
+          width={format ? 52 : 44}
+          allowDecimals={!!domain}
+          domain={domain ?? (zeroBased ? [0, "auto"] : ["auto", "auto"])}
           tickFormatter={(v: number) => (format ?? formatNumber)(v)}
         />
         <Tooltip
@@ -267,13 +270,23 @@ export function BarSeries({
         <CartesianGrid vertical={horizontal} horizontal={!horizontal} stroke="var(--chart-grid)" />
         {horizontal ? (
           <>
-            <XAxis type="number" {...axis} />
+            <XAxis
+              type="number"
+              {...axis}
+              allowDecimals={!!format}
+              tickFormatter={(v: number) => (format ?? formatNumber)(v)}
+            />
             <YAxis type="category" dataKey={x} {...axis} width={110} />
           </>
         ) : (
           <>
             <XAxis dataKey={x} {...axis} dy={6} />
-            <YAxis {...axis} width={44} />
+            <YAxis
+              {...axis}
+              width={format ? 52 : 44}
+              allowDecimals={!!format}
+              tickFormatter={(v: number) => (format ?? formatNumber)(v)}
+            />
           </>
         )}
         <Tooltip
@@ -445,7 +458,7 @@ export function Heatmap({
                 <span
                   key={c}
                   title={`${r} ${c}: ${format(v)}`}
-                  className={cn("aspect-[1.6] rounded-xs", fills[step(v)])}
+                  className={cn("h-8 rounded-xs", fills[step(v)])}
                 />
               );
             })}

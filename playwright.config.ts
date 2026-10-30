@@ -8,6 +8,7 @@ export default defineConfig({
   // Locally the suite shares one database connection across parallel
   // browsers (see DATABASE_POOL_MAX), so pages can stream a little slower.
   expect: { timeout: 10_000 },
+  timeout: 60_000,
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
