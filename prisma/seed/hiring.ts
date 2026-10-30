@@ -25,7 +25,7 @@ const SOURCES = [
 
 const OPEN_ROLES = [
   { title: "Senior Backend Engineer", department: "ENG", openings: 2, status: "OPEN" },
-  { title: "Frontend Engineer", department: "ENG", openings: 1, status: "OPEN" },
+  { title: "Frontend Engineer", department: "ENG", openings: 2, status: "OPEN" },
   { title: "Product Designer", department: "DES", openings: 1, status: "OPEN" },
   { title: "Account Executive", department: "SAL", openings: 2, status: "OPEN" },
   { title: "Customer Success Manager", department: "CS", openings: 1, status: "OPEN" },

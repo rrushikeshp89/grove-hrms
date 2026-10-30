@@ -28,7 +28,10 @@ export const PERMISSION_AREAS: { area: string; permissions: Permission[] }[] = [
     area: "Growth",
     permissions: ["performance.read", "performance.review", "performance.manageCycles"],
   },
-  { area: "Hiring", permissions: ["recruitment.read", "recruitment.manage"] },
+  {
+    area: "Hiring",
+    permissions: ["recruitment.read", "recruitment.manage", "lifecycle.read", "lifecycle.manage"],
+  },
   {
     area: "Company",
     permissions: ["documents.read", "documents.manage", "announcements.publish", "analytics.read"],

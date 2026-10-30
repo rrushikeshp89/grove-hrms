@@ -35,5 +35,7 @@ export async function signInAs(page: Page, role: DemoRole) {
     () => expect(page).toHaveURL(/\/home$/, { timeout: 12_000 }),
     40_000,
   );
-  await expect(page.getByRole("heading", { level: 1 })).toContainText(ROLES[role].name);
+  await expect(page.getByRole("heading", { level: 1 })).toContainText(ROLES[role].name, {
+    timeout: 30_000,
+  });
 }

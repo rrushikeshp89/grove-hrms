@@ -10,6 +10,7 @@ import { ProgressRing } from "@/components/ui/progress";
 import { EmptyState } from "@/components/ui/states";
 import { ClockCard } from "@/features/attendance/components/clock-card";
 import { formatDuration } from "@/features/attendance/logic/evaluate";
+import { dueLabel } from "@/features/lifecycle/logic/checklist";
 import { tenure } from "@/lib/dates";
 import { ROLE_LABELS } from "@/lib/roles";
 import { clockTime, dbDate, type ISODate } from "@/lib/tz";
@@ -87,6 +88,46 @@ function NeedsYou({ approvals }: { approvals: NonNullable<HomeData["approvals"]>
             <span className="hidden text-small text-ink-subtle sm:inline">
               Sent {format(new Date(r.createdAt), "d MMM")}
             </span>
+          </li>
+        ))}
+      </ul>
+    </Card>
+  );
+}
+
+/* ─── Onboarding and offboarding tasks ─────────────────────────────────── */
+
+function YourTasks({ tasks, today }: { tasks: HomeData["tasks"]; today: ISODate }) {
+  return (
+    <Card>
+      <CardHeader
+        title="Your tasks"
+        description={`${tasks.count} open for people joining or leaving`}
+      />
+      <ul className="flex flex-col px-5 pt-1 pb-3">
+        {tasks.items.map((t) => (
+          <li key={t.id} className="border-b border-hairline last:border-0">
+            <Link
+              href={`/lifecycle/${t.checklistId}`}
+              className="flex items-center gap-3 rounded-control py-2.5 hover:text-accent"
+            >
+              <span className="min-w-0 flex-1">
+                <span className="block truncate text-body text-ink">{t.title}</span>
+                <span className="block truncate text-small text-ink-muted">
+                  {t.forSelf ? "Your " : `${t.person}'s `}
+                  {t.kind === "ONBOARDING" ? "onboarding" : "offboarding"}
+                </span>
+              </span>
+              <span
+                className={
+                  t.dueDate < today
+                    ? "text-small font-medium text-danger"
+                    : "text-small text-ink-subtle"
+                }
+              >
+                {dueLabel(t.dueDate, today)}
+              </span>
+            </Link>
           </li>
         ))}
       </ul>
@@ -388,6 +429,7 @@ export function HomeView({ user, data }: { user: CurrentUser; data: HomeData }) 
           )}
           <div className="flex flex-col gap-4 lg:col-span-2 lg:col-start-1 lg:row-span-2 lg:row-start-1">
             {data.approvals && data.approvals.count > 0 && <NeedsYou approvals={data.approvals} />}
+            {data.tasks.count > 0 && <YourTasks tasks={data.tasks} today={data.today} />}
             {data.company && <CompanyPulse company={data.company} />}
             {data.team && <TeamDay team={data.team} />}
             <YourLeave data={data} />

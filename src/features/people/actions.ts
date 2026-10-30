@@ -4,12 +4,15 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
 import type { Prisma } from "@/generated/prisma/client";
+import { startChecklist } from "@/features/lifecycle/start";
+import { can } from "@/lib/rbac";
 import { createAction } from "@/server/action";
 import { ActionError } from "@/server/action-error";
 import { reportIds, targetFor } from "@/server/authz";
 import { actorOf, getCurrentUser } from "@/server/session";
 
 import { profileAccess } from "./access";
+import { insertEmployee } from "./create";
 import { searchPeople } from "./queries";
 import {
   emergencyContactSchema,
@@ -238,41 +241,21 @@ export const deleteEmergencyContact = createAction({
 export const createEmployee = createAction({
   schema: newEmployeeSchema,
   permission: "employee.create",
-  handler: async ({ input, tx, audit }) => {
-    const taken = await tx.employee.findUnique({ where: { workEmail: input.workEmail } });
-    if (taken) {
-      throw new ActionError("Someone already uses that work email.", {
-        workEmail: [`${input.workEmail} belongs to ${taken.firstName} ${taken.lastName}`],
-      });
-    }
+  handler: async ({ input, user, tx, audit }) => {
     const designation = await tx.designation.findUnique({ where: { id: input.designationId } });
     if (designation?.departmentId && designation.departmentId !== input.departmentId) {
       throw new ActionError("That designation belongs to a different department.", {
         designationId: ["Pick a designation from the selected department"],
       });
     }
-    // Codes are sequential and never reused, like a real HR system.
-    const last = await tx.employee.findFirst({
-      orderBy: { employeeCode: "desc" },
-      select: { employeeCode: true },
-    });
-    const next = Number(last?.employeeCode.replace(/\D/g, "") ?? 0) + 1;
-    const employeeCode = `GRV-${String(next).padStart(4, "0")}`;
-    const joinDate = toDay(input.joinDate);
-    const employee = await tx.employee.create({
-      data: {
-        employeeCode,
-        firstName: input.firstName,
-        lastName: input.lastName,
-        workEmail: input.workEmail,
-        designationId: input.designationId,
-        departmentId: input.departmentId,
-        locationId: input.locationId,
-        managerId: input.managerId,
-        employmentType: input.employmentType,
-        joinDate,
-        status: joinDate > new Date() ? "ONBOARDING" : "ACTIVE",
-      },
+    const { id, employeeCode } = await insertEmployee(tx, input);
+    const employee = { id };
+    // Everyone who joins gets an onboarding checklist, however they were added.
+    await startChecklist(tx, {
+      employeeId: id,
+      kind: "ONBOARDING",
+      startDate: input.joinDate,
+      hrId: can(actorOf(user), "lifecycle.manage") ? (user.employee?.id ?? null) : null,
     });
     audit({
       action: "employee.create",
@@ -286,6 +269,7 @@ export const createEmployee = createAction({
     });
     revalidatePath("/people");
     revalidatePath("/org");
+    revalidatePath("/lifecycle");
     return { id: employee.id, employeeCode };
   },
 });

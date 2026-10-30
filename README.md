@@ -2,7 +2,7 @@
 
 A human resource management system people actually enjoy using: calm, warm, and quietly delightful. It's built as a portfolio project with production-grade engineering.
 
-> **Status: Phase 5 of 9: role-tailored homes and analytics.** The full feature set (directory, attendance, leave, payroll, performance, recruitment, analytics) is planned in [`docs/PLAN.md`](docs/PLAN.md). This README grows with each phase.
+> **Status: Phase 6 of 9: recruitment, onboarding and offboarding.** The full feature set (directory, attendance, leave, payroll, performance, recruitment, analytics) is planned in [`docs/PLAN.md`](docs/PLAN.md). This README grows with each phase.
 
 ## Try it
 
@@ -72,6 +72,18 @@ The password is `grove-demo-2026`, and every other employee uses it too. Once yo
   - Time off by type and per person by department. Attendance as a weekday × arrival-time heatmap with on-time trends.
   - Hiring funnel with stage conversion, time to hire, open roles and a source breakdown.
   - Filter by period (presets or custom dates) and department. Filters live in the URL, charts switch between weekly and monthly, and every chart has a table view.
+- **Hiring**
+  - Roles by status with a mini pipeline on each card. Create and edit roles; a role closes itself once every opening is filled.
+  - A kanban pipeline: Applied, Screening, Interview, Offer, Hired. Drag with a mouse or touch, move with the keyboard (Space to lift, arrows to choose a stage, Space to drop), or use each card's menu. Screen readers hear every move announced.
+  - Candidate profiles with details, a journey timeline, notes and 1–5 ratings that roll up into an average.
+  - Passing on someone asks for a reason, and they can be brought back to where they got to.
+  - **Convert to employee** on an offer: creates the employee record (next sequential ID, role's title, department and location), marks the candidate hired, and starts onboarding.
+  - A hiring manager can run their own role's pipeline; only the people team edits roles and completes hires.
+- **Onboarding and offboarding**
+  - Checklists built from editable templates, with tasks for the people team, IT, the manager and the person themselves, each with a due date counted from the first or last day.
+  - Tick tasks off with instant feedback. You can tick your own tasks, and the people team can tick anything. Finishing the last one activates the new joiner, with a celebration.
+  - Starting offboarding moves someone to notice with their last day and reason, and hands out the tasks.
+  - Open tasks show on your Home. Adding an employee by hand starts onboarding too.
 - **"Warm Calm" design system**
   - Light and dark themes, with design tokens checked against WCAG AA by a test.
   - Accessible components styled from scratch.

@@ -1,6 +1,6 @@
 # Grove HRMS: Build Plan
 
-> Status: **approved 2026-10-29** with the decisions in §6. Phases 1–5 complete.
+> Status: **approved 2026-10-29** with the decisions in §6. Phases 1–6 complete.
 
 Contents
 
@@ -567,6 +567,18 @@ Every phase ends the same way: typecheck, lint and tests pass with zero errors, 
 
 - Job postings, a drag-and-drop kanban with keyboard support, candidate profiles with notes and ratings, and "Convert to employee", which kicks off onboarding.
 - Onboarding and offboarding templates, task assignment by role, and progress, with a celebration on completion.
+
+- _As built:_
+  - Routes are `/hiring` (roles), `/hiring/[jobId]` (the board), `/hiring/candidates/[id]`, `/lifecycle` (checklists), `/lifecycle/[id]` and `/lifecycle/templates`. Navigation gains a "Talent" group.
+  - Two permissions were added, `lifecycle.read` (team managers see their reports' checklists, plus any they hold a task on) and `lifecycle.manage` (HR and admins), because checklists reach beyond recruiters.
+  - A hiring manager may move candidates, add notes and pass on people for their own role even without `recruitment.manage`; recruiters can do so on any role. Only `employee.create` holders can complete a hire.
+  - Stage changes write `CandidateStageEvent` rows, so the analytics funnel and time to hire come straight from the board. Plain moves can't hire or reject; those have their own flows that capture details.
+  - Candidate order within a column is a float key, so a drop rewrites one row.
+  - Job descriptions are stored as a small document (paragraphs) and edited as plain text. A rich-text editor stays with announcements in Phase 7.
+  - A checklist is a copy of its template taken when it starts, so editing a template never changes someone's running list.
+  - Hiring and "Add employee" share one code path (`features/people/create.ts`), so IDs and rules stay consistent.
+  - Dependency added with approval in the plan: `@dnd-kit/core`, `@dnd-kit/sortable`, `@dnd-kit/utilities`. Left and right arrows use a column-aware keyboard handler, because the default one can't choose between a column and its cards.
+  - The seed adds both templates, checklists for the last four months of joiners and leavers, a hire starting soon on Priya's team, open offers, and one person serving notice.
 
 **Phase 7: Performance, payroll, documents, announcements**
 

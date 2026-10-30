@@ -1,8 +1,10 @@
 import {
   Blocks,
+  BriefcaseBusiness,
   Building2,
   CalendarDays,
   ChartLine,
+  ClipboardCheck,
   Clock,
   House,
   Inbox,
@@ -108,6 +110,27 @@ export const APP_NAVIGATION: NavGroup[] = [
         icon: Building2,
         shortcut: "g d",
         keywords: ["teams", "designations", "titles"],
+      },
+    ],
+  },
+  {
+    label: "Talent",
+    items: [
+      {
+        href: "/hiring",
+        label: "Hiring",
+        icon: BriefcaseBusiness,
+        permission: "recruitment.read",
+        shortcut: "g j",
+        keywords: ["jobs", "roles", "candidates", "ats", "pipeline", "recruitment"],
+      },
+      {
+        href: "/lifecycle",
+        label: "Onboarding",
+        icon: ClipboardCheck,
+        permission: "lifecycle.read",
+        shortcut: "g b",
+        keywords: ["offboarding", "checklist", "new joiner", "leaver", "tasks"],
       },
     ],
   },

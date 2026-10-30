@@ -5,6 +5,7 @@ import { dataStart, hiringReport, peopleReport } from "@/features/analytics/quer
 import { waitingOnMe } from "@/features/approvals/queries";
 import { myTimesheet, myToday, teamToday, type TeamTodayRow } from "@/features/attendance/queries";
 import { balancesFor, myLeaveRequests } from "@/features/leave/queries";
+import { myOpenTasks } from "@/features/lifecycle/queries";
 import { db } from "@/lib/db";
 import { can, scopeFor } from "@/lib/rbac";
 import { addDays, dbDate, isoFromDbDate, todayIn, type ISODate } from "@/lib/tz";
@@ -81,6 +82,7 @@ export async function getHomeData(user: CurrentUser) {
       ])
     : [null, [], [], null];
 
+  const tasks = me ? await myOpenTasks(me.id) : { count: 0, items: [] };
   const approvals = can(actor, "leave.approve") ? await waitingOnMe(user) : null;
   const team =
     me && me.reports.length > 0 && scopeFor(actor, "attendance.read") === "team"
@@ -102,6 +104,7 @@ export async function getHomeData(user: CurrentUser) {
       .sort((a, b) => a.start.localeCompare(b.start))
       .slice(0, 3),
     month: sheet?.summary ?? null,
+    tasks,
     approvals,
     team,
     company,

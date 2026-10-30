@@ -43,9 +43,12 @@ test.describe("sign in", () => {
 });
 
 const EXPECTED_NAV: Record<DemoRole, { sees: string[]; hidden: string[] }> = {
-  EMPLOYEE: { sees: ["Home", "Settings"], hidden: ["Roles & access", "Analytics", "Approvals"] },
+  EMPLOYEE: {
+    sees: ["Home", "Settings"],
+    hidden: ["Roles & access", "Analytics", "Approvals", "Hiring", "Onboarding"],
+  },
   TEAM_MANAGER: {
-    sees: ["Home", "Approvals", "Settings"],
+    sees: ["Home", "Approvals", "Hiring", "Onboarding", "Settings"],
     hidden: ["Roles & access", "Analytics"],
   },
   HR_MANAGER: { sees: ["Home", "Analytics", "Roles & access", "Settings"], hidden: [] },
@@ -63,7 +66,7 @@ test.describe("each role", () => {
         await expect(main.getByText("Company at a glance")).toHaveCount(0);
       }
       if (role === "TEAM_MANAGER") {
-        await expect(main.getByText("8 direct reports")).toBeVisible();
+        await expect(main.getByText("9 direct reports")).toBeVisible();
         await expect(main.getByRole("heading", { name: "Your team today" })).toBeVisible();
       }
       if (role === "EMPLOYEE") {

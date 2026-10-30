@@ -17,6 +17,7 @@ import { DEMO_PASSWORD } from "../../src/lib/env";
 import { minutesInDay, todayIn } from "../../src/lib/tz";
 import { RELATIONSHIPS } from "./names";
 import { seedHiring } from "./hiring";
+import { seedLifecycle } from "./lifecycle";
 import { seedProfiles } from "./profiles";
 import { seedTime } from "./time";
 import { buildPeople, byHierarchy, DEPARTMENTS, type PersonSeed } from "./people";
@@ -345,6 +346,13 @@ async function main() {
   // ── Recruitment history ───────────────────────────────────────────────
   const hiring = await seedHiring(db, rng, { today: todayIn(), fakerSeed: SEED + 1 });
 
+  // ── Onboarding and offboarding ────────────────────────────────────────
+  const lifecycle = await seedLifecycle(db, rng, {
+    today: todayIn(),
+    ids: employeeIds,
+    hrId: employeeIds.get("hr")!,
+  });
+
   const [employeeCount, userCount] = await Promise.all([db.employee.count(), db.user.count()]);
   const demo = await db.user.findMany({
     where: { isDemo: true },
@@ -360,6 +368,9 @@ async function main() {
   );
   console.log(
     `  ${hiring.jobs} job postings (${hiring.open} open), ${hiring.candidates} candidates behind ${hiring.hires} hires`,
+  );
+  console.log(
+    `  ${lifecycle.checklists} onboarding/offboarding checklists (${lifecycle.running} running); ${lifecycle.newJoiner} joins ${lifecycle.joinDate}`,
   );
   console.log(`  Demo logins (password "${DEMO_PASSWORD}"):`);
   for (const d of demo) console.log(`    ${d.role.padEnd(13)} ${d.email}`);
