@@ -1,14 +1,20 @@
 import "server-only";
 
-import { db } from "@/lib/db";
+import { db, type Prisma } from "@/lib/db";
 import { can, scopeFor, type Permission, type Target } from "@/lib/rbac";
 
 import { ActionError } from "./action-error";
 import { actorOf, type CurrentUser } from "./session";
 
+/**
+ * Inside an action, pass the transaction client so checks read the same
+ * snapshot and don't need a second connection from the pool.
+ */
+type Client = Prisma.TransactionClient;
+
 /** Every manager above an employee, nearest first. */
-export async function managerChain(employeeId: string): Promise<string[]> {
-  const rows = await db.$queryRaw<{ id: string }[]>`
+export async function managerChain(employeeId: string, client: Client = db): Promise<string[]> {
+  const rows = await client.$queryRaw<{ id: string }[]>`
     WITH RECURSIVE chain AS (
       SELECT "managerId" AS id, 1 AS depth FROM "Employee" WHERE id = ${employeeId}
       UNION ALL
@@ -20,8 +26,8 @@ export async function managerChain(employeeId: string): Promise<string[]> {
 }
 
 /** Everyone who reports to an employee, directly or indirectly. */
-export async function reportIds(employeeId: string): Promise<string[]> {
-  const rows = await db.$queryRaw<{ id: string }[]>`
+export async function reportIds(employeeId: string, client: Client = db): Promise<string[]> {
+  const rows = await client.$queryRaw<{ id: string }[]>`
     WITH RECURSIVE tree AS (
       SELECT id, 1 AS depth FROM "Employee" WHERE "managerId" = ${employeeId}
       UNION ALL
@@ -32,13 +38,18 @@ export async function reportIds(employeeId: string): Promise<string[]> {
   return rows.map((r) => r.id);
 }
 
-export async function targetFor(ownerId: string): Promise<Target> {
-  return { ownerId, ownerManagerChain: await managerChain(ownerId) };
+export async function targetFor(ownerId: string, client: Client = db): Promise<Target> {
+  return { ownerId, ownerManagerChain: await managerChain(ownerId, client) };
 }
 
 /** Throws a user-facing ActionError unless the user may act on this owner's record. */
-export async function assertCan(user: CurrentUser, permission: Permission, ownerId: string) {
-  if (!can(actorOf(user), permission, await targetFor(ownerId))) {
+export async function assertCan(
+  user: CurrentUser,
+  permission: Permission,
+  ownerId: string,
+  client: Client = db,
+) {
+  if (!can(actorOf(user), permission, await targetFor(ownerId, client))) {
     throw new ActionError("You don't have access to do that for this person.");
   }
 }

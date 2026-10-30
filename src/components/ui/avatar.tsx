@@ -90,7 +90,7 @@ export function AvatarStack({
     <div
       role="img"
       aria-label={people.map((p) => p.name).join(", ")}
-      className={cn("flex items-center -space-x-2", className)}
+      className={cn("flex items-center -space-x-1.5", className)}
     >
       {shown.map((p) => (
         <Avatar key={p.name} name={p.name} src={p.src} size={size} ring />

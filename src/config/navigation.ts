@@ -1,6 +1,9 @@
 import {
   Blocks,
+  Building2,
   House,
+  Network,
+  Users,
   LayoutTemplate,
   Palette,
   Settings,
@@ -39,6 +42,32 @@ export const APP_NAVIGATION: NavGroup[] = [
         icon: House,
         shortcut: "g h",
         keywords: ["dashboard", "today"],
+      },
+    ],
+  },
+  {
+    label: "Organization",
+    items: [
+      {
+        href: "/people",
+        label: "People",
+        icon: Users,
+        shortcut: "g e",
+        keywords: ["directory", "employees", "team", "colleagues"],
+      },
+      {
+        href: "/org",
+        label: "Org chart",
+        icon: Network,
+        shortcut: "g o",
+        keywords: ["hierarchy", "reporting", "structure", "managers"],
+      },
+      {
+        href: "/departments",
+        label: "Departments",
+        icon: Building2,
+        shortcut: "g d",
+        keywords: ["teams", "designations", "titles"],
       },
     ],
   },

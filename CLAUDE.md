@@ -69,6 +69,10 @@ tests/e2e/               Playwright
 
 - **Auth and data access.** Pages/components that read the session must sit inside `<Suspense>` (Cache Components). Use `requireUser()` / `requirePermission(p)` from `server/session.ts`; never trust the client. Gate a whole page once, inside one Suspense child, before streaming role-specific content.
 - **Mutations.** Always `createAction({ schema, permission?, handler })`: authenticate → Zod → role check → transaction with queued `audit(...)` entries. Inside handlers use `assertCan(user, permission, ownerEmployeeId)` for record-level (team/own) checks, and throw `ActionError` for user-facing failures. Return values are `ActionResult<T>`.
+- **Inside a handler, query only through `tx`.** That includes the authz helpers: pass `tx` as their last argument (`targetFor(id, tx)`, `reportIds(id, tx)`). Querying through the global `db` inside a transaction needs a second pool connection, and it deadlocks when `DATABASE_POOL_MAX=1`.
+- **Server-to-client props.** Pass elements, never functions. In-place editing uses `EditableSection` with `form={<SomeForm />}`, and the form gets its close callback from `useEditableDone()`.
+- **Forms.** Submit raw input with `form.getValues()` and let the server action run the authoritative Zod parse. Type the form as `useForm<Input, unknown, z.output<typeof schema>>`. Use `useWatch` rather than `form.watch` (React Compiler).
+- **Profiles.** `features/people/access.ts` (`profileAccess`) decides what's visible and editable, and both the actions and the UI use it. Private fields and history are only fetched when `seePrivate` is true.
 - **RBAC.** Permissions and scopes live in `lib/rbac.ts` (`can`, `GRANTS`). Navigation items declare a `permission`, not role lists. Filter queries in SQL via `visibleEmployeeIds`.
 - **Seed.** Add each module's history as its own step under `prisma/seed/`. Keep it deterministic (`createRng(SEED)`); everyone uses `DEMO_PASSWORD`.
 

@@ -1,6 +1,6 @@
 # Grove HRMS: Build Plan
 
-> Status: **approved 2026-10-29** with the decisions in §6. Phases 1–2 complete.
+> Status: **approved 2026-10-29** with the decisions in §6. Phases 1–3 complete.
 
 Contents
 
@@ -526,6 +526,12 @@ Every phase ends the same way: typecheck, lint and tests pass with zero errors, 
 - Directory (grid and table, search, filters, URL-synced state) and rich profiles (tabs: overview, job, team, documents, timeline, emergency contacts), with permission-aware inline editing.
 - Departments and designations CRUD.
 - Org chart: d3-hierarchy layout, pan, zoom, collapse, keyboard navigation, and node-to-profile preview.
+
+- _As built:_
+  - HR can also add employees from the directory.
+  - The Documents tab on profiles arrives with the documents module in Phase 7, so there's no empty tab before then.
+  - Org chart nodes are HTML positioned with `d3-hierarchy`, with pan and zoom done in CSS. There's no canvas library.
+  - The seed adds bios, pronouns and past promotions, so profile timelines have real history.
 
 **Phase 4: Time and approvals**
 

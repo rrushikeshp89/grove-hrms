@@ -2,7 +2,7 @@
 
 A human resource management system people actually enjoy using: calm, warm, and quietly delightful. It's built as a portfolio project with production-grade engineering.
 
-> **Status: Phase 2 of 9: data, auth and access control.** The full feature set (directory, attendance, leave, payroll, performance, recruitment, analytics) is planned in [`docs/PLAN.md`](docs/PLAN.md). This README grows with each phase.
+> **Status: Phase 3 of 9: people, departments and the org chart.** The full feature set (directory, attendance, leave, payroll, performance, recruitment, analytics) is planned in [`docs/PLAN.md`](docs/PLAN.md). This README grows with each phase.
 
 ## Try it
 
@@ -28,6 +28,22 @@ The password is `grove-demo-2026`, and every other employee uses it too. Once yo
   - Four roles. Each permission has a scope: your own records, your team, or everyone.
   - The same rules are enforced on the server for every page and action, and decide what the UI shows.
   - Admins and HR can see the full access matrix.
+- **People directory**
+  - Search by name, title, team, skill or employee ID, with filters for department, location, status and employment type.
+  - Grid and table views. The whole view lives in the URL, so it can be shared or bookmarked.
+  - HR can add employees. Codes are issued in sequence, and new people appear in the org chart straight away.
+- **Profiles**
+  - Overview, Team, Personal and Activity tabs, with each section edited in place.
+  - What you can see and change depends on who you are. You edit your own bio, skills and private details. Your managers can read your private details but not change them. HR edits job details and can't create a reporting loop.
+  - Emergency contacts, and a change history built from the audit log ("Backend Engineer → Senior Backend Engineer").
+- **Org chart**
+  - Built from manager relationships, with pan, zoom and collapsible teams.
+  - Keyboard navigation follows the standard tree pattern, and a search box finds anyone.
+  - Clicking a person opens a profile preview. Every profile links to its place in the chart.
+- **Departments**
+  - Heads, headcount and job titles for each department, with create, edit and delete for HR.
+  - Nothing that is still in use can be deleted.
+- **Command palette people search.** Ctrl+K finds any colleague by name or ID.
 - **Role-aware home**
   - Your profile, team and upcoming holidays.
   - Company-wide numbers for HR and admins.

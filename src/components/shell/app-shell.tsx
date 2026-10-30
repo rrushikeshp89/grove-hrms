@@ -232,7 +232,7 @@ export function AppShell({
         </SheetContent>
       </Sheet>
 
-      <CommandPalette />
+      <CommandPalette peopleSearch={variant === "app"} />
       <ShortcutSheet />
       {user && <PreferenceSync user={user} />}
     </div>

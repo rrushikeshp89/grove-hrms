@@ -2,10 +2,13 @@
 
 import { Command } from "cmdk";
 import { CornerDownLeft, Search } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { Dialog as DialogPrimitive } from "radix-ui";
 import * as React from "react";
 
+import { Avatar } from "@/components/ui/avatar";
 import { Kbd } from "@/components/ui/primitives";
+import { findPeople } from "@/features/people/actions";
 import { commandScore } from "@/lib/command-filter";
 import { formatShortcut } from "@/lib/shortcuts";
 import { cn } from "@/lib/utils";
@@ -33,9 +36,37 @@ export function Keycaps({ spec, className }: { spec: string; className?: string 
   );
 }
 
-export function CommandPalette() {
+type PersonHit = Awaited<ReturnType<typeof findPeople>>[number];
+
+/** Server-side people search, debounced and cancelled when the query moves on. */
+function usePeopleSearch(query: string, enabled: boolean) {
+  const [hits, setHits] = React.useState<PersonHit[]>([]);
+  const [lastQuery, setLastQuery] = React.useState(query);
+  const q = query.trim();
+  if (q !== lastQuery) {
+    setLastQuery(q);
+    if (q.length < 2) setHits([]);
+  }
+  React.useEffect(() => {
+    if (!enabled || q.length < 2) return;
+    let cancelled = false;
+    const t = setTimeout(async () => {
+      const result = await findPeople(q);
+      if (!cancelled) setHits(result);
+    }, 180);
+    return () => {
+      cancelled = true;
+      clearTimeout(t);
+    };
+  }, [q, enabled]);
+  return enabled ? hits : [];
+}
+
+export function CommandPalette({ peopleSearch = false }: { peopleSearch?: boolean }) {
   const { actions, paletteOpen, setPaletteOpen } = useActions();
   const [search, setSearch] = React.useState("");
+  const people = usePeopleSearch(search, peopleSearch && paletteOpen);
+  const router = useRouter();
 
   const groups = React.useMemo(() => {
     const visible = actions.filter((a) => !a.paletteHidden);
@@ -76,7 +107,9 @@ export function CommandPalette() {
               <Command.Input
                 value={search}
                 onValueChange={setSearch}
-                placeholder="Search pages and actions…"
+                placeholder={
+                  peopleSearch ? "Search people, pages and actions…" : "Search pages and actions…"
+                }
                 className="h-14 flex-1 bg-transparent text-heading text-ink outline-none placeholder:text-ink-subtle"
               />
               <Kbd className="hidden sm:inline-flex">Esc</Kbd>
@@ -85,10 +118,45 @@ export function CommandPalette() {
               <Command.Empty className="px-4 py-10 text-center">
                 <p className="text-body text-ink">Nothing matches &ldquo;{search}&rdquo;</p>
                 <p className="mt-1 text-small text-ink-muted">
-                  Try a page name like &ldquo;components&rdquo; or an action like
-                  &ldquo;dark&rdquo;.
+                  {peopleSearch
+                    ? "Try a colleague's name, an employee ID, or a page like “org chart”."
+                    : "Try a page name like “components” or an action like “dark”."}
                 </p>
               </Command.Empty>
+              {people.length > 0 && (
+                <Command.Group
+                  heading="People"
+                  className="mb-1 [&_[cmdk-group-heading]]:px-2.5 [&_[cmdk-group-heading]]:pt-2 [&_[cmdk-group-heading]]:pb-1.5 [&_[cmdk-group-heading]]:eyebrow"
+                >
+                  {people.map((p) => (
+                    <Command.Item
+                      key={p.id}
+                      value={`${p.name} ${p.code}`}
+                      keywords={[p.title, p.department, p.code]}
+                      onSelect={() => {
+                        setPaletteOpen(false);
+                        setSearch("");
+                        router.push(`/people/${p.id}`);
+                      }}
+                      className={cn(
+                        "group flex h-12 cursor-default items-center gap-3 rounded-control px-2.5 text-body text-ink outline-none",
+                        "data-[selected=true]:bg-surface-hover",
+                      )}
+                    >
+                      <Avatar name={p.name} src={p.avatarUrl} size="sm" />
+                      <span className="min-w-0 flex-1">
+                        <span className="block truncate">{p.name}</span>
+                        <span className="block truncate text-caption text-ink-subtle">
+                          {p.title} · {p.department}
+                        </span>
+                      </span>
+                      <span className="hidden font-mono text-caption text-ink-subtle sm:inline">
+                        {p.code}
+                      </span>
+                    </Command.Item>
+                  ))}
+                </Command.Group>
+              )}
               {groups.map(({ group, items }) => (
                 <Command.Group
                   key={group}

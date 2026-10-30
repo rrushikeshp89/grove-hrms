@@ -43,16 +43,20 @@ export function Combobox({
   id?: string;
   "aria-invalid"?: boolean;
   "aria-describedby"?: string;
+  /** Needed when the combobox isn't inside a labelled <Field>. */
+  "aria-label"?: string;
 }) {
   const [open, setOpen] = React.useState(false);
   const selected = options.find((o) => o.value === value);
-  const field = useFieldProps({ id, ...aria });
+  const { "aria-label": ariaLabel, ...fieldAria } = aria;
+  const field = useFieldProps({ id, ...fieldAria });
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger
         role="combobox"
         aria-expanded={open}
+        aria-label={ariaLabel}
         {...field}
         className={cn(
           controlBase,

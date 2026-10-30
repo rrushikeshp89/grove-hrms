@@ -4,8 +4,8 @@
  *
  *   npm run db:seed
  *
- * Phase 2 seeds the organization, people, sign-in accounts and reference
- * data. Later phases add their module history (attendance, leave, payroll…)
+ * Seeds the organization, people (with bios and promotion history),
+ * sign-in accounts and reference data. Later phases add their module history (attendance, leave, payroll…)
  * as separate steps in this folder.
  */
 import { faker } from "@faker-js/faker";
@@ -15,6 +15,7 @@ import { hashPassword } from "better-auth/crypto";
 import { PrismaClient } from "../../src/generated/prisma/client";
 import { DEMO_PASSWORD } from "../../src/lib/env";
 import { RELATIONSHIPS } from "./names";
+import { seedProfiles } from "./profiles";
 import { buildPeople, byHierarchy, DEPARTMENTS, type PersonSeed } from "./people";
 import { HOLIDAYS, LEAVE_TYPES } from "./reference";
 import { createRng } from "./rng";
@@ -220,6 +221,39 @@ async function main() {
     });
   }
 
+  // ── Profile texture and promotion history ─────────────────────────────
+  const hrUser = await db.user.findFirst({
+    where: { role: "HR_MANAGER", isDemo: true },
+    select: { id: true },
+  });
+  const current = await db.employee.findMany({
+    where: { status: { not: "EXITED" } },
+    select: {
+      id: true,
+      firstName: true,
+      joinDate: true,
+      designationId: true,
+      departmentId: true,
+      department: { select: { name: true } },
+      designation: { select: { level: true } },
+    },
+  });
+  const promotions = await seedProfiles(
+    db,
+    rng,
+    current.map((e) => ({
+      id: e.id,
+      firstName: e.firstName,
+      joinDate: e.joinDate,
+      designationId: e.designationId,
+      departmentId: e.departmentId,
+      departmentName: e.department.name,
+      level: e.designation.level,
+    })),
+    hrUser?.id ?? null,
+    new Set(people.filter((p) => !/^[gx]\d/.test(p.key)).map((p) => employeeIds.get(p.key)!)),
+  );
+
   // ── Leave types and holidays ──────────────────────────────────────────
   for (const t of LEAVE_TYPES) {
     const { policy, ...type } = t;
@@ -256,6 +290,7 @@ async function main() {
   console.log(
     `  ${employeeCount} employees, ${userCount} sign-in accounts, ${DEPARTMENTS.length} departments`,
   );
+  console.log(`  ${promotions} past promotions in the audit log`);
   console.log(`  Demo logins (password "${DEMO_PASSWORD}"):`);
   for (const d of demo) console.log(`    ${d.role.padEnd(13)} ${d.email}`);
 }
