@@ -14,8 +14,10 @@ import { hashPassword } from "better-auth/crypto";
 
 import { PrismaClient } from "../../src/generated/prisma/client";
 import { DEMO_PASSWORD } from "../../src/lib/env";
+import { minutesInDay, todayIn } from "../../src/lib/tz";
 import { RELATIONSHIPS } from "./names";
 import { seedProfiles } from "./profiles";
+import { seedTime } from "./time";
 import { buildPeople, byHierarchy, DEPARTMENTS, type PersonSeed } from "./people";
 import { HOLIDAYS, LEAVE_TYPES } from "./reference";
 import { createRng } from "./rng";
@@ -281,6 +283,64 @@ async function main() {
     })),
   });
 
+  // ── Attendance, leave and corrections history ─────────────────────────
+  const types = await db.leaveType.findMany({ include: { policies: true } });
+  const allEmployees = await db.employee.findMany({
+    select: {
+      id: true,
+      joinDate: true,
+      managerId: true,
+      locationId: true,
+      employmentType: true,
+      status: true,
+    },
+  });
+  const time = await seedTime(db, rng, {
+    today: todayIn(),
+    nowMinutes: minutesInDay(new Date()),
+    people: allEmployees.map((e) => {
+      const key = keyById.get(e.id)!;
+      return {
+        id: e.id,
+        key,
+        joinDate: e.joinDate.toISOString().slice(0, 10),
+        managerId: e.managerId,
+        locationId: e.locationId,
+        employmentType: e.employmentType,
+        status: e.status,
+        isDemo: !!personByKey.get(key)?.demo,
+      };
+    }),
+    leaveTypes: types.map((t) => {
+      const p = t.policies[0]!;
+      return {
+        id: t.id,
+        code: t.code,
+        approvalLevels: t.approvalLevels,
+        allowHalfDay: t.allowHalfDay,
+        minNoticeDays: t.minNoticeDays,
+        policy: {
+          annualQuota: Number(p.annualQuota),
+          accrual: p.accrual,
+          carryForwardMax: Number(p.carryForwardMax),
+          proRataOnJoin: p.proRataOnJoin,
+        },
+      };
+    }),
+    holidays: HOLIDAYS.map((h) => ({
+      day: h.date,
+      locationId: h.officeOnly ? office.id : null,
+      optional: !!h.optional,
+    })),
+    schedule: {
+      startTime: schedule.startTime,
+      endTime: schedule.endTime,
+      graceMinutes: schedule.graceMinutes,
+      workDays: schedule.workDays,
+    },
+    hrApproverId: employeeIds.get("hr")!,
+  });
+
   const [employeeCount, userCount] = await Promise.all([db.employee.count(), db.user.count()]);
   const demo = await db.user.findMany({
     where: { isDemo: true },
@@ -291,6 +351,9 @@ async function main() {
     `  ${employeeCount} employees, ${userCount} sign-in accounts, ${DEPARTMENTS.length} departments`,
   );
   console.log(`  ${promotions} past promotions in the audit log`);
+  console.log(
+    `  ${time.attendance} attendance days, ${time.leaveRequests} leave requests, ${time.corrections} corrections (${time.pending} pending)`,
+  );
   console.log(`  Demo logins (password "${DEMO_PASSWORD}"):`);
   for (const d of demo) console.log(`    ${d.role.padEnd(13)} ${d.email}`);
 }

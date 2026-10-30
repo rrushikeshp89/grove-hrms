@@ -21,6 +21,8 @@ export async function retryUntil(action: () => Promise<void>, done: () => Promis
 }
 
 export async function signInAs(page: Page, role: DemoRole) {
+  // A signed-in visitor is sent from /login to /home, so switching roles starts signed out.
+  await page.context().clearCookies();
   await page.goto("/login");
   const card = page.getByRole("button", { name: new RegExp(`^Explore as ${ROLES[role].card}:`) });
   await retryUntil(

@@ -2,7 +2,7 @@
 
 A human resource management system people actually enjoy using: calm, warm, and quietly delightful. It's built as a portfolio project with production-grade engineering.
 
-> **Status: Phase 3 of 9: people, departments and the org chart.** The full feature set (directory, attendance, leave, payroll, performance, recruitment, analytics) is planned in [`docs/PLAN.md`](docs/PLAN.md). This README grows with each phase.
+> **Status: Phase 4 of 9: attendance, leave, holidays and approvals.** The full feature set (directory, attendance, leave, payroll, performance, recruitment, analytics) is planned in [`docs/PLAN.md`](docs/PLAN.md). This README grows with each phase.
 
 ## Try it
 
@@ -43,6 +43,22 @@ The password is `grove-demo-2026`, and every other employee uses it too. Once yo
 - **Departments**
   - Heads, headcount and job titles for each department, with create, edit and delete for HR.
   - Nothing that is still in use can be deleted.
+- **Attendance**
+  - Press-and-hold clock in and out, with a live timer. It won't let you clock in on a day of full leave.
+  - A monthly timesheet that marks late arrivals, early departures, half days, leave and holidays, with month-by-month history.
+  - Corrections for the last 30 days go to your manager for approval, and an approved correction updates the timesheet.
+  - Managers see who's in, late, on leave or not in yet across their team today.
+- **Leave**
+  - Balances come from each policy's accrual (up front or monthly, pro-rated from your joining date), plus a ledger of carry-forward, usage, holds and adjustments.
+  - The apply sheet shows holidays and teammates' leave on the range picker, and supports half days. It previews the day count and explains notice, balance and overlap rules before you send.
+  - Approval goes to your manager first. HR approves second when the leave type needs it or the request runs past 5 days.
+  - A small celebration when your leave is approved. You can cancel pending or future leave and get the days back.
+  - A team calendar by month and department.
+- **Holidays.** The company calendar for each location and year, with the next holiday highlighted.
+- **Approvals inbox**
+  - Leave and attendance corrections in one place, with team clashes and holidays shown on each request.
+  - Approve one or select many, with optimistic updates. Declining asks for a short note.
+  - HR and admins can switch to every open request. There's also a list of recent decisions.
 - **Command palette people search.** Ctrl+K finds any colleague by name or ID.
 - **Role-aware home**
   - Your profile, team and upcoming holidays.

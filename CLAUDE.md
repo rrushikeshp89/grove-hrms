@@ -74,6 +74,8 @@ tests/e2e/               Playwright
 - **Forms.** Submit raw input with `form.getValues()` and let the server action run the authoritative Zod parse. Type the form as `useForm<Input, unknown, z.output<typeof schema>>`. Use `useWatch` rather than `form.watch` (React Compiler).
 - **Profiles.** `features/people/access.ts` (`profileAccess`) decides what's visible and editable, and both the actions and the UI use it. Private fields and history are only fetched when `seePrivate` is true.
 - **RBAC.** Permissions and scopes live in `lib/rbac.ts` (`can`, `GRANTS`). Navigation items declare a `permission`, not role lists. Filter queries in SQL via `visibleEmployeeIds`.
+- **Time and dates.** Logic works on ISO date strings (`ISODate`) and the company zone `COMPANY_TZ` (Asia/Kolkata). Helpers are in `lib/tz.ts`: `todayIn`, `dbDate`/`isoFromDbDate` for `@db.Date` columns, `instantAt`, `clockTime`. Never compare `Date` objects for calendar days.
+- **Leave and attendance logic.** Business rules are pure functions in `features/leave/logic/` and `features/attendance/logic/`, unit-tested and shared by client previews and server actions. Balance = `accrued(policy)` plus the ledger; never write ACCRUAL rows. Leave and corrections go through `features/requests/engine.ts` (`createRequest`, `applyDecision`), which owns the ledger side effects of a decision.
 - **Seed.** Add each module's history as its own step under `prisma/seed/`. Keep it deterministic (`createRng(SEED)`); everyone uses `DEMO_PASSWORD`.
 
 - Register palette commands and shortcuts with `useRegisterActions([...])` (memoized). One registry feeds the palette, the key handler and the `?` sheet. Single-key shortcuts are ignored while typing; set `global: true` only for modifier chords.

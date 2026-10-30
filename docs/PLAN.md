@@ -1,6 +1,6 @@
 # Grove HRMS: Build Plan
 
-> Status: **approved 2026-10-29** with the decisions in §6. Phases 1–3 complete.
+> Status: **approved 2026-10-29** with the decisions in §6. Phases 1–4 complete.
 
 Contents
 
@@ -540,6 +540,15 @@ Every phase ends the same way: typecheck, lint and tests pass with zero errors, 
 - Holidays by location.
 - A unified approvals inbox with bulk approve and optimistic UI.
 - Units: balance, accrual, working days and approval chain. E2E: apply and approve leave, clock in.
+
+- _As built:_
+  - Accrual is computed from the policy (up front or monthly, pro-rated from the joining date) rather than written as ACCRUAL ledger rows. The ledger holds only events: carry-forward, usage, pending holds, releases and adjustments. A balance is accrual plus the ledger total.
+  - Pure logic lives in `features/*/logic/` (working days, balance, approval chain, validation, day evaluation, timesheet) and runs on both client and server, so the apply sheet's preview uses the same rules as the server action.
+  - Timesheets work out leave and holidays from their own tables. Attendance rows only hold what was clocked.
+  - The leave year is the calendar year, and a request can't span two years.
+  - Approved regularizations upsert the attendance record with source `REGULARIZED`.
+  - Managing holidays (create and edit) moves to Settings in Phase 8. Phase 4 shows them read-only.
+  - The seed adds about 12 months of attendance, 2025–26 leave within balances, carry-forward, and pending requests for Priya and Rahul, so the inbox has something in it.
 
 **Phase 5: Dashboards and analytics**
 
