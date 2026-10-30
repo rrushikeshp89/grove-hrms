@@ -396,7 +396,7 @@ export function Funnel({ stages }: { stages: { label: string; value: number }[] 
             <span className="truncate text-small text-ink-muted">{s.label}</span>
             <div className="h-7 overflow-hidden rounded-sm bg-surface-sunken">
               <div
-                className="flex h-full items-center rounded-sm bg-accent px-2 transition-[width] duration-700 ease-out-soft"
+                className="flex h-full min-w-11 items-center rounded-sm bg-accent px-2 transition-[width] duration-700 ease-out-soft"
                 style={{ width: `${Math.max(pct * 100, 8)}%` }}
               >
                 <span className="num text-caption font-semibold text-accent-fg">
