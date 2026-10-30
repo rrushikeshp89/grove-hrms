@@ -1,14 +1,25 @@
 "use client";
 
 import { Command } from "cmdk";
-import { CornerDownLeft, Search } from "lucide-react";
+import {
+  Briefcase,
+  CornerDownLeft,
+  FileText,
+  Megaphone,
+  Search,
+  Target,
+  UserSearch,
+  type LucideIcon,
+} from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Dialog as DialogPrimitive } from "radix-ui";
 import * as React from "react";
 
 import { Avatar } from "@/components/ui/avatar";
 import { Kbd } from "@/components/ui/primitives";
-import { findPeople } from "@/features/people/actions";
+import { searchEverything } from "@/features/search/actions";
+import { Highlight } from "@/features/search/components/highlight";
+import type { HitKind, SearchHit } from "@/features/search/queries";
 import { commandScore } from "@/lib/command-filter";
 import { formatShortcut } from "@/lib/shortcuts";
 import { cn } from "@/lib/utils";
@@ -36,11 +47,18 @@ export function Keycaps({ spec, className }: { spec: string; className?: string 
   );
 }
 
-type PersonHit = Awaited<ReturnType<typeof findPeople>>[number];
+const KINDS: { kind: HitKind; heading: string; icon: LucideIcon | null }[] = [
+  { kind: "person", heading: "People", icon: null },
+  { kind: "job", heading: "Jobs", icon: Briefcase },
+  { kind: "candidate", heading: "Candidates", icon: UserSearch },
+  { kind: "announcement", heading: "Announcements", icon: Megaphone },
+  { kind: "goal", heading: "Goals", icon: Target },
+  { kind: "policy", heading: "Policies", icon: FileText },
+];
 
-/** Server-side people search, debounced and cancelled when the query moves on. */
-function usePeopleSearch(query: string, enabled: boolean) {
-  const [hits, setHits] = React.useState<PersonHit[]>([]);
+/** Server-side search across the app, debounced and cancelled when the query moves on. */
+function useSearch(query: string, enabled: boolean) {
+  const [hits, setHits] = React.useState<SearchHit[]>([]);
   const [lastQuery, setLastQuery] = React.useState(query);
   const q = query.trim();
   if (q !== lastQuery) {
@@ -51,7 +69,7 @@ function usePeopleSearch(query: string, enabled: boolean) {
     if (!enabled || q.length < 2) return;
     let cancelled = false;
     const t = setTimeout(async () => {
-      const result = await findPeople(q);
+      const result = await searchEverything(q);
       if (!cancelled) setHits(result);
     }, 180);
     return () => {
@@ -65,7 +83,8 @@ function usePeopleSearch(query: string, enabled: boolean) {
 export function CommandPalette({ peopleSearch = false }: { peopleSearch?: boolean }) {
   const { actions, paletteOpen, setPaletteOpen } = useActions();
   const [search, setSearch] = React.useState("");
-  const people = usePeopleSearch(search, peopleSearch && paletteOpen);
+  const hits = useSearch(search, peopleSearch && paletteOpen);
+  const terms = search.trim().split(/\s+/).filter(Boolean);
   const router = useRouter();
 
   const groups = React.useMemo(() => {
@@ -108,7 +127,9 @@ export function CommandPalette({ peopleSearch = false }: { peopleSearch?: boolea
                 value={search}
                 onValueChange={setSearch}
                 placeholder={
-                  peopleSearch ? "Search people, pages and actions…" : "Search pages and actions…"
+                  peopleSearch
+                    ? "Search people, jobs, policies, pages and actions…"
+                    : "Search pages and actions…"
                 }
                 className="h-14 flex-1 bg-transparent text-heading text-ink outline-none placeholder:text-ink-subtle"
               />
@@ -119,44 +140,60 @@ export function CommandPalette({ peopleSearch = false }: { peopleSearch?: boolea
                 <p className="text-body text-ink">Nothing matches &ldquo;{search}&rdquo;</p>
                 <p className="mt-1 text-small text-ink-muted">
                   {peopleSearch
-                    ? "Try a colleague's name, an employee ID, or a page like “org chart”."
+                    ? "Try a colleague’s name, a policy title, or a page like “org chart”."
                     : "Try a page name like “components” or an action like “dark”."}
                 </p>
               </Command.Empty>
-              {people.length > 0 && (
-                <Command.Group
-                  heading="People"
-                  className="mb-1 [&_[cmdk-group-heading]]:px-2.5 [&_[cmdk-group-heading]]:pt-2 [&_[cmdk-group-heading]]:pb-1.5 [&_[cmdk-group-heading]]:eyebrow"
-                >
-                  {people.map((p) => (
-                    <Command.Item
-                      key={p.id}
-                      value={`${p.name} ${p.code}`}
-                      keywords={[p.title, p.department, p.code]}
-                      onSelect={() => {
-                        setPaletteOpen(false);
-                        setSearch("");
-                        router.push(`/people/${p.id}`);
-                      }}
-                      className={cn(
-                        "group flex h-12 cursor-default items-center gap-3 rounded-control px-2.5 text-body text-ink outline-none",
-                        "data-[selected=true]:bg-surface-hover",
-                      )}
-                    >
-                      <Avatar name={p.name} src={p.avatarUrl} size="sm" />
-                      <span className="min-w-0 flex-1">
-                        <span className="block truncate">{p.name}</span>
-                        <span className="block truncate text-caption text-ink-subtle">
-                          {p.title} · {p.department}
+              {KINDS.map(({ kind, heading, icon: KindIcon }) => {
+                const items = hits.filter((h) => h.kind === kind);
+                if (items.length === 0) return null;
+                return (
+                  <Command.Group
+                    key={kind}
+                    heading={heading}
+                    className="mb-1 [&_[cmdk-group-heading]]:px-2.5 [&_[cmdk-group-heading]]:pt-2 [&_[cmdk-group-heading]]:pb-1.5 [&_[cmdk-group-heading]]:eyebrow"
+                  >
+                    {items.map((h) => (
+                      <Command.Item
+                        key={`${h.kind}:${h.id}`}
+                        value={`${h.title} ${h.detail} ${h.code ?? ""}`}
+                        // The server already matched these; keep them from being filtered out here.
+                        keywords={terms}
+                        onSelect={() => {
+                          setPaletteOpen(false);
+                          setSearch("");
+                          router.push(h.href);
+                        }}
+                        className={cn(
+                          "group flex h-12 cursor-default items-center gap-3 rounded-control px-2.5 text-body text-ink outline-none",
+                          "data-[selected=true]:bg-surface-hover",
+                        )}
+                      >
+                        {KindIcon ? (
+                          <span className="grid size-8 shrink-0 place-items-center rounded-sm border border-hairline bg-surface text-ink-muted group-data-[selected=true]:border-accent/30 group-data-[selected=true]:text-accent">
+                            <KindIcon className="size-4" strokeWidth={1.75} aria-hidden />
+                          </span>
+                        ) : (
+                          <Avatar name={h.title} src={h.avatarUrl} size="sm" />
+                        )}
+                        <span className="min-w-0 flex-1">
+                          <span className="block truncate">
+                            <Highlight text={h.title} query={search} />
+                          </span>
+                          <span className="block truncate text-caption text-ink-subtle">
+                            <Highlight text={h.detail} query={search} />
+                          </span>
                         </span>
-                      </span>
-                      <span className="hidden font-mono text-caption text-ink-subtle sm:inline">
-                        {p.code}
-                      </span>
-                    </Command.Item>
-                  ))}
-                </Command.Group>
-              )}
+                        {h.code && (
+                          <span className="hidden font-mono text-caption text-ink-subtle sm:inline">
+                            <Highlight text={h.code} query={search} />
+                          </span>
+                        )}
+                      </Command.Item>
+                    ))}
+                  </Command.Group>
+                );
+              })}
               {groups.map(({ group, items }) => (
                 <Command.Group
                   key={group}

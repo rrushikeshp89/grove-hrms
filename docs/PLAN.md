@@ -606,6 +606,17 @@ Every phase ends the same way: typecheck, lint and tests pass with zero errors, 
 - CSV import with a validation preview, CSV and PDF export.
 - Global search with highlighting, and the full shortcut set.
 
+- _As built:_
+  - **Notifications** are written by `features/notifications/notify.ts` inside the same transaction as the change that causes them (`triggers.ts` for approvals, `broadcasts.ts` for payslips, announcements, review steps, feedback and checklist tasks), so a notification exists exactly when its cause does, and you are never notified of your own action. The bell polls every 60 seconds while the tab is visible. **Not built:** `@mentions` (nothing in the product can mention anyone yet) and time-based reminders, which need the scheduled job that arrives with the Phase 9 deploy.
+  - **Audit log** reads the existing `AuditLog` table: filters in the URL, cursor pagination (50 a page), a before/after diff per row, and a CSV export of the same filters. Only `audit.read` (super admin) can open it.
+  - **Settings** edits only what takes effect: company name and registered name (printed on payslips), working hours and work days, leave types, holidays and roles. Time zone, currency and fiscal year are fixed for the deployment and shown read-only. A role change can't target yourself, the last super admin or a demo account, and is audited.
+  - **Import** is a two-step server flow (`previewEmployeeImport` then `importEmployees`) around pure checks in `features/people/import-logic.ts`. A manager can be an existing employee or a row above. Rows with problems are skipped, never partly imported, and the file is limited to 200 rows and 1 MB.
+  - **Export** goes through `lib/csv.ts` (BOM for Excel, CRLF, `nosniff`, and a guard that prefixes cells starting with `=`, `+`, `-`, `@` or a tab). People, leave, payroll-run and audit exports are route handlers that check permission and visibility on the server. The analytics PDF (`features/analytics/report-pdf.tsx`) reuses the report queries and carries the page's period and department.
+  - **Search** is one server action (`features/search/actions.ts`) that fans out to people, jobs, candidates, announcements, policies and goals. Each source applies the same visibility rule as its own page. `highlightSegments` (tested) drives the `<mark>` shown in results.
+  - **Quick actions** live in `config/quick-actions.ts`, filtered by permission like navigation. They navigate to the page that owns the form with `?new=<kind>`, and `useAutoOpen` opens the sheet and clears the parameter.
+  - New dependency (approved in §5): `papaparse` (with `@types/papaparse`). `@vercel/blob` is still deferred to Phase 9.
+  - The seed adds a few notifications for each demo account, drawn from their real approvals, latest payslip and newest announcement.
+
 **Phase 9: Polish and ship**
 
 - A motion and empty-state sweep, an axe plus manual keyboard audit, responsive QA, and Lighthouse passes.

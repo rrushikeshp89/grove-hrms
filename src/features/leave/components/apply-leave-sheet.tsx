@@ -37,6 +37,7 @@ import { leaveDays } from "../logic/days";
 import { validateLeave } from "../logic/validate";
 import type { ApplyContext, BalanceRow } from "../queries";
 import { applyLeaveSchema, type ApplyLeaveInput } from "../schemas";
+import { useAutoOpen } from "@/lib/use-auto-open";
 
 const toLocal = (iso: ISODate) => {
   const [y, m, d] = iso.split("-").map(Number) as [number, number, number];
@@ -53,6 +54,7 @@ export function ApplyLeaveSheet({
   context: ApplyContext;
 }) {
   const [open, setOpen] = React.useState(false);
+  useAutoOpen("leave", () => setOpen(true));
   const router = useRouter();
   const defaultType = balances.find((b) => b.code === "CL") ?? balances[0];
   const form = useForm<ApplyLeaveInput, unknown, z.output<typeof applyLeaveSchema>>({

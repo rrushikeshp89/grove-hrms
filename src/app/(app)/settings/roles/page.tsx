@@ -8,10 +8,13 @@ import { Card, CardBody, CardHeader } from "@/components/ui/primitives";
 import { Stat } from "@/components/ui/stat";
 import { TableSkeleton } from "@/components/ui/states";
 import { PERMISSION_AREAS } from "@/features/roles/matrix";
+import { RoleTable } from "@/features/settings/components/role-table";
+import { SettingsTabs } from "@/features/settings/components/settings-tabs";
+import { rolePeople } from "@/features/settings/queries";
 import { db } from "@/lib/db";
-import { GRANTS, PERMISSIONS, type Scope } from "@/lib/rbac";
+import { GRANTS, PERMISSIONS, can, type Scope } from "@/lib/rbac";
 import { ROLE_LABELS, ROLES } from "@/lib/roles";
-import { requirePermission } from "@/server/session";
+import { actorOf, requirePermission } from "@/server/session";
 
 export const metadata: Metadata = { title: "Roles & access" };
 
@@ -121,12 +124,28 @@ function Matrix() {
 
 /** One gate for the whole page, before anything role-specific streams. */
 async function RolesContent() {
-  await requirePermission("roles.read");
+  const user = await requirePermission("roles.read");
+  const canAssign = can(actorOf(user), "roles.assign");
+  const people = await rolePeople();
   return (
     <div className="mt-8 flex flex-col gap-6">
+      <SettingsTabs role={user.role} />
       <Suspense fallback={<div className="h-32" aria-busy />}>
         <RoleCounts />
       </Suspense>
+      <Card className="overflow-hidden">
+        <CardHeader
+          title="People and their roles"
+          description={
+            canAssign
+              ? "Change someone's role and it applies from their next request. You can't change your own, the last super admin, or the demo accounts."
+              : "Who has which role. Only super admins can change them."
+          }
+        />
+        <div className="mt-3 border-t border-hairline">
+          <RoleTable people={people} canAssign={canAssign} me={user.id} />
+        </div>
+      </Card>
       <Matrix />
     </div>
   );

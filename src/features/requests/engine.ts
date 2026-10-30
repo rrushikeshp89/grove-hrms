@@ -2,6 +2,7 @@ import "server-only";
 
 import { evaluateDay } from "@/features/attendance/logic/evaluate";
 import { approvalChain, decide, type Decision } from "@/features/leave/logic/approval";
+import { notifyPendingApprover, notifyRequester } from "@/features/notifications/triggers";
 import { workContext } from "@/features/time/calendar";
 import type { Prisma } from "@/lib/db";
 import { isoFromDbDate } from "@/lib/tz";
@@ -132,6 +133,10 @@ export async function applyDecision(
       update: { clockInAt, clockOutAt, source: "REGULARIZED", ...evaluated },
     });
   }
+
+  // The next approver hears about it, or the requester hears how it ended.
+  if (result.final) await notifyRequester(tx, { requestId: request.id, deciderId: opts.deciderId });
+  else await notifyPendingApprover(tx, request.id);
 
   return {
     status: result.status,

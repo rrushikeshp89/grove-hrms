@@ -28,6 +28,7 @@ import {
   uploadProblem,
   type Category,
 } from "../logic/rules";
+import { useAutoOpen } from "@/lib/use-auto-open";
 
 const OWN: Category[] = ["ID_PROOF", "CONTRACT", "CERTIFICATE", "OTHER"];
 
@@ -47,6 +48,7 @@ export function UploadSheet({
 }) {
   const router = useRouter();
   const [open, setOpen] = React.useState(false);
+  useAutoOpen("upload", () => setOpen(true));
   const [title, setTitle] = React.useState("");
   const [category, setCategory] = React.useState<Category>("OTHER");
   const [target, setTarget] = React.useState(defaultTarget);

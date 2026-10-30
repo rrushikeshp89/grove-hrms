@@ -44,19 +44,36 @@ test.describe("sign in", () => {
 
 const EXPECTED_NAV: Record<DemoRole, { sees: string[]; hidden: string[] }> = {
   EMPLOYEE: {
-    sees: ["Home", "Performance", "Pay", "Announcements", "Documents", "Settings"],
-    hidden: ["Roles & access", "Analytics", "Approvals", "Hiring", "Onboarding"],
+    sees: ["Home", "Notifications", "Performance", "Pay", "Announcements", "Documents", "Settings"],
+    hidden: ["Roles & access", "Audit log", "Analytics", "Approvals", "Hiring", "Onboarding"],
   },
   TEAM_MANAGER: {
-    sees: ["Home", "Approvals", "Hiring", "Onboarding", "Settings"],
-    hidden: ["Roles & access", "Analytics", "Payroll"],
+    sees: ["Home", "Notifications", "Approvals", "Hiring", "Onboarding", "Settings"],
+    hidden: ["Roles & access", "Audit log", "Analytics", "Payroll"],
   },
   HR_MANAGER: {
-    sees: ["Home", "Analytics", "Payroll", "Performance", "Roles & access", "Settings"],
-    hidden: [],
+    sees: [
+      "Home",
+      "Notifications",
+      "Analytics",
+      "Payroll",
+      "Performance",
+      "Roles & access",
+      "Settings",
+    ],
+    hidden: ["Audit log"],
   },
   SUPER_ADMIN: {
-    sees: ["Home", "Analytics", "Payroll", "Performance", "Roles & access", "Settings"],
+    sees: [
+      "Home",
+      "Notifications",
+      "Analytics",
+      "Payroll",
+      "Performance",
+      "Roles & access",
+      "Audit log",
+      "Settings",
+    ],
     hidden: [],
   },
 };

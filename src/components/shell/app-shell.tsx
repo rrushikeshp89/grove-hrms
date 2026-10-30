@@ -15,8 +15,11 @@ import {
   navigationFor,
   type NavGroup,
 } from "@/config/navigation";
+import { quickActionsFor } from "@/config/quick-actions";
+import { NotificationBell } from "@/features/notifications/components/notification-bell";
 import { useTheme } from "@/hooks/use-theme";
 import { getDensity, isSidebarCollapsed, setDensity, setSidebarCollapsed } from "@/lib/preferences";
+import type { Role } from "@/lib/roles";
 
 import { useActions, useIsMac, useRegisterActions, type Action } from "./actions-provider";
 import { BrandMark, Wordmark } from "./brand";
@@ -29,7 +32,7 @@ import { UserMenu, type ShellUser } from "./user-menu";
 
 export type { ShellUser };
 
-function useShellActions(groups: NavGroup[]) {
+function useShellActions(groups: NavGroup[], role: Role | null) {
   const router = useRouter();
   const { setPaletteOpen, setHelpOpen } = useActions();
   const { resolvedTheme, setTheme } = useTheme();
@@ -50,6 +53,16 @@ function useShellActions(groups: NavGroup[]) {
         perform: () => setPaletteOpen(true),
       },
       {
+        id: "palette.slash",
+        label: "Search everything",
+        group: "Help",
+        icon: Search,
+        shortcut: "/",
+        keywords: ["find", "lookup"],
+        paletteHidden: true,
+        perform: () => setPaletteOpen(true),
+      },
+      {
         id: "help.shortcuts",
         label: "Show keyboard shortcuts",
         group: "Help",
@@ -58,6 +71,15 @@ function useShellActions(groups: NavGroup[]) {
         keywords: ["keys", "hotkeys", "help"],
         perform: () => setHelpOpen(true),
       },
+      ...quickActionsFor(role).map<Action>((q) => ({
+        id: q.id,
+        label: q.label,
+        group: "Actions",
+        icon: q.icon,
+        shortcut: q.shortcut,
+        keywords: q.keywords,
+        perform: () => router.push(q.href),
+      })),
       ...groups.flatMap((g) =>
         g.items.map<Action>((item) => ({
           id: `nav.${item.href}`,
@@ -98,7 +120,7 @@ function useShellActions(groups: NavGroup[]) {
         perform: () => setSidebarCollapsed(!isSidebarCollapsed()),
       },
     ],
-    [groups, router, setHelpOpen, setPaletteOpen, setTheme],
+    [groups, role, router, setHelpOpen, setPaletteOpen, setTheme],
   );
   useRegisterActions(actions);
 }
@@ -143,7 +165,7 @@ export function AppShell({
     [role, variant],
   );
   const homeHref = variant === "app" ? "/home" : "/design";
-  useShellActions(groups);
+  useShellActions(groups, role);
   const { setHelpOpen, setPaletteOpen } = useActions();
   const [mobileOpen, setMobileOpen] = React.useState(false);
   return (
@@ -199,6 +221,7 @@ export function AppShell({
                 <Keyboard className="size-[18px]" strokeWidth={1.75} aria-hidden />
               </button>
             </Tooltip>
+            {user && <NotificationBell />}
             <ThemeMenu />
             {user ? (
               <span className="ml-1.5">

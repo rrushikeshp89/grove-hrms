@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 
+import { notifyPendingApprover } from "@/features/notifications/triggers";
 import { createRequest } from "@/features/requests/engine";
 import { hrApproverId, workCalendar, workContext } from "@/features/time/calendar";
 import { dbDate, todayIn } from "@/lib/tz";
@@ -114,6 +115,7 @@ export const applyLeave = createAction({
       entityId: request.id,
       after: { type: balance.code, start: input.start, end: input.end, days },
     });
+    await notifyPendingApprover(tx, request.id, user.id);
     refresh();
     return { requestId: request.id, days };
   },

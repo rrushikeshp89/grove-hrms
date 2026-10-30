@@ -4,6 +4,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 
+import { ExportLink } from "@/components/shell/export-link";
 import { PageContainer } from "@/components/shell/page-header";
 import { Badge, StatusPill } from "@/components/ui/badge";
 import { Card, CardBody, CardHeader } from "@/components/ui/primitives";
@@ -56,6 +57,7 @@ async function Run({ params }: { params: PageProps<"/payroll/[id]">["params"] })
             </p>
           </div>
           <div className="flex shrink-0 flex-wrap items-center gap-2 sm:justify-end">
+            <ExportLink href={`/payroll/${run.id}/export`}>Export CSV</ExportLink>
             <RunActions
               runId={run.id}
               status={run.status}

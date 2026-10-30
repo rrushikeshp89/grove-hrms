@@ -27,6 +27,7 @@ import { saveJob } from "../actions";
 import { JOB_STATUS_META } from "../logic/pipeline";
 import type { RecruitmentOptions } from "../queries";
 import { JOB_STATUSES, jobSchema, type JobInput } from "../schemas";
+import { useAutoOpen } from "@/lib/use-auto-open";
 
 const BLANK: JobInput = {
   id: null,
@@ -216,6 +217,7 @@ export function JobSheet({
 /** The "New role" button and its sheet, for the jobs page header. */
 export function NewJobButton({ options }: { options: RecruitmentOptions }) {
   const [open, setOpen] = React.useState(false);
+  useAutoOpen("role", () => setOpen(true));
   return (
     <>
       <Button onClick={() => setOpen(true)}>

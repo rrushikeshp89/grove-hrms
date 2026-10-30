@@ -7,6 +7,7 @@ import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardBody, CardHeader, DescriptionList, Skeleton } from "@/components/ui/primitives";
 import { AppearanceSettings } from "@/features/account/components/appearance-settings";
+import { SettingsTabs } from "@/features/settings/components/settings-tabs";
 import { ChangePasswordForm } from "@/features/account/components/change-password-form";
 import { SessionsList, type SessionRow } from "@/features/account/components/sessions-list";
 import { db } from "@/lib/db";
@@ -85,6 +86,11 @@ async function Sessions() {
   );
 }
 
+async function Tabs() {
+  const user = await requireUser();
+  return <SettingsTabs role={user.role} />;
+}
+
 async function Security() {
   const user = await requireUser();
   return <ChangePasswordForm isDemo={user.isDemo} />;
@@ -99,6 +105,9 @@ export default function SettingsPage() {
         description="Your profile, how Grove looks, and where you're signed in."
       />
       <div className="mt-8 flex flex-col gap-4">
+        <Suspense fallback={<Skeleton className="h-10 w-full" />}>
+          <Tabs />
+        </Suspense>
         <Card>
           <CardHeader title="Profile" />
           <CardBody>

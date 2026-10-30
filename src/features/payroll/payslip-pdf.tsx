@@ -99,7 +99,7 @@ export function PayslipDocument({ slip }: { slip: PayslipDetail }) {
   const deductions = slip.lines.filter((l) => l.kind === "DEDUCTION");
   const prorated = slip.paidDays < slip.workingDays;
   return (
-    <Document title={`Payslip ${slip.label} ${slip.employee.name}`} author="Northwind Grove">
+    <Document title={`Payslip ${slip.label} ${slip.employee.name}`} author={slip.company}>
       <Page size="A4" style={s.page}>
         <Text style={s.banner}>
           Simulated payroll. This payslip is generated from demo data and has no legal or financial
@@ -108,7 +108,7 @@ export function PayslipDocument({ slip }: { slip: PayslipDetail }) {
         <View style={s.head}>
           <View>
             <Text style={s.brand}>Grove</Text>
-            <Text style={s.company}>Northwind Grove Technologies Pvt. Ltd., Bengaluru</Text>
+            <Text style={s.company}>{slip.company}</Text>
           </View>
           <View>
             <Text style={[s.title, { textAlign: "right" }]}>Payslip</Text>

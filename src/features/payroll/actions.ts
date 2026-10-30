@@ -6,8 +6,11 @@ import { dbDate, monthBounds, todayIn } from "@/lib/tz";
 import { createAction } from "@/server/action";
 import { ActionError } from "@/server/action-error";
 
+import { notifyPayslipsReady } from "@/features/notifications/broadcasts";
+
 import { buildPayslips } from "./generate";
 import { runnableMonth, standardStructure } from "./logic/compute";
+import { periodLabel } from "./queries";
 import { createRunSchema, returnRunSchema, runIdSchema, structureSchema } from "./schemas";
 
 const refresh = (runId?: string) => {
@@ -152,6 +155,7 @@ export const finalizeRun = createAction({
       before: { status: "IN_REVIEW" },
       after: { status: "FINALIZED" },
     });
+    await notifyPayslipsReady(tx, run.id, periodLabel(run.year, run.month), user.id);
     refresh(run.id);
     return { status: "FINALIZED" as const };
   },

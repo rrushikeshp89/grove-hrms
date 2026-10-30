@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 
 import type { Prisma } from "@/generated/prisma/client";
+import { notifyCycleStep, notifyFeedbackRequested } from "@/features/notifications/broadcasts";
 import { can } from "@/lib/rbac";
 import { dbDate } from "@/lib/tz";
 import { createAction } from "@/server/action";
@@ -217,7 +218,7 @@ export const saveCycle = createAction({
 export const advanceCycle = createAction({
   schema: cycleIdSchema,
   permission: "performance.manageCycles",
-  handler: async ({ input, tx, audit }) => {
+  handler: async ({ input, user, tx, audit }) => {
     const cycle = await tx.reviewCycle.findUnique({ where: { id: input.cycleId } });
     if (!cycle) throw new ActionError("That cycle no longer exists.");
     const next = nextCycleStatus(cycle.status as CycleStatus);
@@ -259,6 +260,7 @@ export const advanceCycle = createAction({
       if (submitted === 0) throw new ActionError("No manager reviews have been submitted yet.");
     }
     await tx.reviewCycle.update({ where: { id: cycle.id }, data: { status: next } });
+    await notifyCycleStep(tx, cycle.id, next, user.id);
     audit({
       action: "cycle.advance",
       entityType: "ReviewCycle",
@@ -382,6 +384,11 @@ export const requestFeedback = createAction({
       created++;
     }
     if (created === 0) throw new ActionError("They've all been asked already.");
+    await notifyFeedbackRequested(tx, {
+      revieweeId: input.revieweeId,
+      fromIds: from,
+      actorUserId: user.id,
+    });
     audit({
       action: "feedback.request",
       entityType: "ReviewCycle",

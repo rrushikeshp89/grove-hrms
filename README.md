@@ -2,7 +2,7 @@
 
 A human resource management system people actually enjoy using: calm, warm, and quietly delightful. It's built as a portfolio project with production-grade engineering.
 
-> **Status: Phase 7 of 9: performance, payroll, documents and announcements.** The full feature set (directory, attendance, leave, payroll, performance, recruitment, analytics) is planned in [`docs/PLAN.md`](docs/PLAN.md). This README grows with each phase.
+> **Status: Phase 8 of 9: notifications, audit log, settings, import and export, search.** The full feature set (directory, attendance, leave, payroll, performance, recruitment, analytics) is planned in [`docs/PLAN.md`](docs/PLAN.md). This README grows with each phase.
 
 ## Try it
 
@@ -103,6 +103,20 @@ The password is `grove-demo-2026`, and every other employee uses it too. Once yo
 - **Announcements**
   - A rich-text editor for the people team, with headings, lists, quotes and links. Post to everyone or to chosen teams and locations, pin the important ones, or keep a draft.
   - Reactions, unread markers that clear as you read, and for publishers a count of who has read each post and who hasn't.
+- **Notifications**
+  - A bell with an unread count and a page for everything, with read and unread. Approvals, decisions, payslips, announcements, review steps, peer feedback and onboarding tasks each notify the right people, in the same transaction as the change that caused them.
+  - The bell checks again every minute while the tab is visible.
+- **Audit log** (super admin)
+  - Every change, with who, what and when. Filter by person, area, record or dates, search it, open a row to see exactly what changed before and after, and export what you're looking at.
+- **Settings**
+  - Account, appearance and sessions for everyone. The people team also edits leave types and holidays; a super admin edits company details and working hours and changes roles.
+  - Role changes can't target yourself, the last super admin or a demo account, and each one is audited.
+- **Import and export**
+  - Add people from a CSV: pick a file, see every row checked in a preview (departments, titles, managers, duplicate emails, dates), then import the valid ones. Up to 200 rows.
+  - Download the directory (for the filters you have on), a leave year, a pay run, or the audit log as CSV, and the analytics page as a PDF report. CSV cells that could run as spreadsheet formulas are neutralized.
+- **Search and quick actions**
+  - The command palette searches people, jobs, candidates, announcements, policies and goals, and shows why each result matched. It only returns what you could open yourself.
+  - `n` then `l`, `g`, `u`, `a`, `e` or `r` starts a leave request, goal, upload, announcement, employee or new role from anywhere. `/` opens search and `?` lists every shortcut.
 - **"Warm Calm" design system**
   - Light and dark themes, with design tokens checked against WCAG AA by a test.
   - Accessible components styled from scratch.

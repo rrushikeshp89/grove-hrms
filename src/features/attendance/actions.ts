@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
 import { leaveDayParts } from "@/features/leave/logic/days";
+import { notifyPendingApprover } from "@/features/notifications/triggers";
 import { createRequest } from "@/features/requests/engine";
 import { hrApproverId, workCalendar, workContext } from "@/features/time/calendar";
 import { addDays, dbDate, instantAt, todayIn } from "@/lib/tz";
@@ -163,6 +164,7 @@ export const requestRegularization = createAction({
       entityId: request.id,
       after: { date: input.date, clockIn: input.clockIn, clockOut: input.clockOut },
     });
+    await notifyPendingApprover(tx, request.id, user.id);
     revalidatePath("/attendance");
     revalidatePath("/approvals");
     return { requestId: request.id };

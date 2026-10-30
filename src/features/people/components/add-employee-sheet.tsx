@@ -31,11 +31,13 @@ import { EMPLOYMENT_LABELS } from "../format";
 import type { JobOptions } from "../queries";
 import { newEmployeeSchema, type NewEmployeeInput } from "../schemas";
 import { DesignationSelect, ManagerCombobox } from "./person-fields";
+import { useAutoOpen } from "@/lib/use-auto-open";
 
 const today = () => new Date().toISOString().slice(0, 10);
 
 export function AddEmployeeSheet({ options }: { options: JobOptions }) {
   const [open, setOpen] = React.useState(false);
+  useAutoOpen("employee", () => setOpen(true));
   const router = useRouter();
   const office =
     options.locations.find((l) => l.name.includes("Bengaluru")) ?? options.locations[0];

@@ -2,6 +2,7 @@ import { UserRoundX } from "lucide-react";
 import type { Metadata } from "next";
 import { Suspense } from "react";
 
+import { ExportLink } from "@/components/shell/export-link";
 import { PageContainer, PageHeader } from "@/components/shell/page-header";
 import { Card, Skeleton } from "@/components/ui/primitives";
 import { EmptyState, TableSkeleton } from "@/components/ui/states";
@@ -13,8 +14,9 @@ import {
 } from "@/features/leave/components/leave-overview";
 import { applyContext, balancesFor, myLeaveRequests } from "@/features/leave/queries";
 import { SectionTabs } from "@/features/time/components/section-tabs";
+import { scopeFor } from "@/lib/rbac";
 import { todayIn } from "@/lib/tz";
-import { requirePermission } from "@/server/session";
+import { actorOf, requirePermission } from "@/server/session";
 
 export const metadata: Metadata = { title: "Leave" };
 
@@ -49,7 +51,14 @@ async function Leave() {
         eyebrow="Time"
         title="Leave"
         description={`Your ${year} balances, requests and approvals.`}
-        actions={<ApplyLeaveSheet balances={balances} context={context} />}
+        actions={
+          <>
+            {scopeFor(actorOf(user), "leave.read") !== "own" && (
+              <ExportLink href={`/leave/export?year=${year}`}>Export CSV</ExportLink>
+            )}
+            <ApplyLeaveSheet balances={balances} context={context} />
+          </>
+        }
       />
       <div className="mt-6 flex flex-col gap-6">
         <SectionTabs label="Leave views" tabs={TABS} />

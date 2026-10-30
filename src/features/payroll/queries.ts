@@ -113,6 +113,7 @@ export async function payslipDetail(user: CurrentUser, id: string) {
     },
   });
   if (!slip) return null;
+  const company = await db.company.findFirst({ select: { legalName: true } });
   const staff = can(actorOf(user), "payroll.run");
   const own = slip.employeeId === user.employee?.id && slip.run.status === "FINALIZED";
   if (!staff && !own) return null;
@@ -122,6 +123,7 @@ export async function payslipDetail(user: CurrentUser, id: string) {
     month: slip.run.month,
     label: periodLabel(slip.run.year, slip.run.month),
     status: slip.run.status,
+    company: company?.legalName ?? "Northwind Grove",
     finalizedAt: slip.run.finalizedAt?.toISOString() ?? null,
     workingDays: slip.workingDays,
     paidDays: Number(slip.paidDays),

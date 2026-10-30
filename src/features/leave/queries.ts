@@ -342,3 +342,62 @@ export async function teamCalendar(
 }
 
 export { workCalendar };
+
+/**
+ * Leave requests for a spreadsheet: everyone's for the people team, your
+ * reports' for a manager, only your own otherwise. A year at a time.
+ */
+export async function leaveForExport(user: CurrentUser, year: number) {
+  const visible = await visibleEmployeeIds(user, "leave.read");
+  const rows = await db.request.findMany({
+    where: {
+      type: "LEAVE",
+      ...(visible === "all" ? {} : { requesterId: { in: visible } }),
+      leave: {
+        startDate: { gte: dbDate(`${year}-01-01`), lte: dbDate(`${year}-12-31`) },
+      },
+    },
+    orderBy: { leave: { startDate: "asc" } },
+    take: 5000,
+    select: {
+      status: true,
+      createdAt: true,
+      requester: {
+        select: {
+          employeeCode: true,
+          firstName: true,
+          lastName: true,
+          preferredName: true,
+          department: { select: { name: true } },
+        },
+      },
+      leave: {
+        select: {
+          startDate: true,
+          endDate: true,
+          days: true,
+          reason: true,
+          leaveType: { select: { name: true } },
+        },
+      },
+    },
+  });
+  return rows.flatMap((r) =>
+    r.leave
+      ? [
+          {
+            code: r.requester.employeeCode,
+            name: `${r.requester.preferredName ?? r.requester.firstName} ${r.requester.lastName}`,
+            department: r.requester.department.name,
+            type: r.leave.leaveType.name,
+            start: isoFromDbDate(r.leave.startDate),
+            end: isoFromDbDate(r.leave.endDate),
+            days: Number(r.leave.days),
+            status: r.status,
+            requested: r.createdAt.toISOString().slice(0, 10),
+            reason: r.leave.reason,
+          },
+        ]
+      : [],
+  );
+}

@@ -20,6 +20,7 @@ import { seedAnnouncements } from "./announcements";
 import { seedDocuments } from "./documents";
 import { seedHiring } from "./hiring";
 import { seedLifecycle } from "./lifecycle";
+import { seedNotifications } from "./notifications";
 import { seedPayroll } from "./payroll";
 import { seedPerformance } from "./performance";
 import { seedProfiles } from "./profiles";
@@ -390,6 +391,9 @@ async function main() {
     finalizerId: employeeIds.get("coo")!,
   });
 
+  // ── Notifications ─────────────────────────────────────────────────────
+  const notifications = await seedNotifications(db);
+
   const [employeeCount, userCount] = await Promise.all([db.employee.count(), db.user.count()]);
   const demo = await db.user.findMany({
     where: { isDemo: true },
@@ -421,6 +425,7 @@ async function main() {
   console.log(
     `  ${announcements.published} announcements (${announcements.reads} reads, ${announcements.reactions} reactions)`,
   );
+  console.log(`  ${notifications.notifications} notifications for the demo accounts`);
   console.log(`  Demo logins (password "${DEMO_PASSWORD}"):`);
   for (const d of demo) console.log(`    ${d.role.padEnd(13)} ${d.email}`);
 }

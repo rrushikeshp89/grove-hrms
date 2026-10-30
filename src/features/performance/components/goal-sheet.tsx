@@ -24,6 +24,7 @@ import { addDays } from "@/lib/tz";
 
 import { saveGoal } from "../actions";
 import { goalSchema, type GoalInput } from "../schemas";
+import { useAutoOpen } from "@/lib/use-auto-open";
 
 const NONE = "none";
 
@@ -240,6 +241,7 @@ export function NewGoalButton(
   props: Omit<React.ComponentProps<typeof GoalSheet>, "open" | "onOpenChange" | "goal">,
 ) {
   const [open, setOpen] = React.useState(false);
+  useAutoOpen("goal", () => setOpen(true));
   return (
     <>
       <Button onClick={() => setOpen(true)}>

@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 
+import { notifyAnnouncementPublished } from "@/features/notifications/broadcasts";
 import { can } from "@/lib/rbac";
 import { createAction } from "@/server/action";
 import { ActionError } from "@/server/action-error";
@@ -58,6 +59,10 @@ export const saveAnnouncement = createAction({
       entityId: saved.id,
       after: { title: saved.title, published: !!saved.publishedAt, pinned: saved.pinned },
     });
+    // Only the first publish tells people; later edits are quiet.
+    if (saved.publishedAt && !existing?.publishedAt) {
+      await notifyAnnouncementPublished(tx, saved.id, user.id);
+    }
     refresh();
     return { id: saved.id, published: !!saved.publishedAt };
   },

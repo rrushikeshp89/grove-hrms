@@ -7,7 +7,9 @@ import {
   ClipboardCheck,
   Clock,
   House,
+  Bell,
   Inbox,
+  ScrollText,
   FolderOpen,
   Megaphone,
   Goal,
@@ -210,6 +212,14 @@ export const APP_NAVIGATION: NavGroup[] = [
     label: "Administration",
     items: [
       {
+        href: "/audit",
+        label: "Audit log",
+        icon: ScrollText,
+        permission: "audit.read",
+        shortcut: "g x",
+        keywords: ["history", "changes", "log", "who changed", "security"],
+      },
+      {
         href: "/settings/roles",
         label: "Roles & access",
         icon: ShieldCheck,
@@ -222,6 +232,13 @@ export const APP_NAVIGATION: NavGroup[] = [
   {
     label: "You",
     items: [
+      {
+        href: "/notifications",
+        label: "Notifications",
+        icon: Bell,
+        shortcut: "g z",
+        keywords: ["alerts", "inbox", "unread", "updates"],
+      },
       {
         href: "/settings",
         label: "Settings",

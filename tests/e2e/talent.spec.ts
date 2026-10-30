@@ -207,10 +207,14 @@ test.describe("hiring and lifecycle", () => {
     await expect(page.getByText("Template saved")).toBeVisible();
     await page.reload();
     await expect(page.getByRole("textbox", { name: "Task" }).last()).toBeVisible();
-    const titles = await page
-      .getByRole("textbox", { name: "Task", exact: true })
-      .evaluateAll((els) => els.map((e) => (e as HTMLInputElement).value));
-    expect(titles).toContain("Team photo");
+    // The fields take their values at hydration, so poll rather than read once.
+    await expect
+      .poll(() =>
+        page
+          .getByRole("textbox", { name: "Task", exact: true })
+          .evaluateAll((els) => els.map((e) => (e as HTMLInputElement).value)),
+      )
+      .toContain("Team photo");
   });
 });
 

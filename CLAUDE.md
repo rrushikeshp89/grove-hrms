@@ -43,6 +43,7 @@ src/server/              session.ts (DAL: getCurrentUser/requireUser/requirePerm
 src/proxy.ts             optimistic cookie redirects only; never the security boundary
 prisma/                  schema.prisma, migrations/, seed/ (deterministic; named demo people in seed/people.ts)
 src/config/navigation.ts nav groups; only routes that exist; navigationFor(role)
+src/config/quick-actions.ts "n then x" start-something shortcuts, by permission
 src/lib/                 pure helpers (format, shortcuts, command-filter, preferences, motion)
 src/styles/tokens.test.ts WCAG contrast + token-discipline guard
 tests/e2e/               Playwright
@@ -87,6 +88,10 @@ tests/e2e/               Playwright
 - **Server pages can't export constants.** Put shared values in a plain module (see `features/payroll/format.ts`), and route handlers can't set `runtime` with Cache Components.
 - **Seed.** Add each module's history as its own step under `prisma/seed/`. Keep it deterministic (`createRng(SEED)`); everyone uses `DEMO_PASSWORD`.
 
+- **Notifications.** Never insert `Notification` rows directly. Call `notify(tx, drafts)` (`features/notifications/notify.ts`) from inside the same transaction as the change, usually through `triggers.ts` or `broadcasts.ts`, and pass `actorUserId` so people aren't notified of their own action.
+- **Exports.** Build CSVs with `toCsv` / `csvResponse` from `lib/csv.ts` (formula guard, BOM, `nosniff`). An export is a route handler (`export/route.ts`) that checks the permission and reuses the page's own query, so it can never show more than the page. Link to it with `ExportLink` (`components/shell/export-link.tsx`).
+- **Search.** A new searchable thing gets a source in `features/search/queries.ts` that applies the same visibility rule as its page. Render matches with `Highlight`.
+- **Quick actions.** "Start something" shortcuts (`n` then a letter) are listed in `config/quick-actions.ts` with a permission. Each goes to the page that owns the form with `?new=<kind>`; the sheet calls `useAutoOpen("<kind>", open)`.
 - Register palette commands and shortcuts with `useRegisterActions([...])` (memoized). One registry feeds the palette, the key handler and the `?` sheet. Single-key shortcuts are ignored while typing; set `global: true` only for modifier chords.
 - In e2e tests, use `pressUntil` for keyboard shortcuts, because they only attach after hydration.
 - Money is stored in integer minor units (paise) and formatted with `formatMoney`. Dates use date-fns with the `en-IN` locale.

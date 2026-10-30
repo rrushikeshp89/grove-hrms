@@ -1,5 +1,6 @@
 import "server-only";
 
+import { notifyChecklistTasks } from "@/features/notifications/broadcasts";
 import { hrApproverId } from "@/features/time/calendar";
 import type { Prisma } from "@/generated/prisma/client";
 import type { ISODate } from "@/lib/tz";
@@ -81,5 +82,6 @@ export async function startChecklist(
       },
     },
   });
+  await notifyChecklistTasks(tx, checklist.id);
   return checklist.id;
 }

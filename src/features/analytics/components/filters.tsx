@@ -4,6 +4,7 @@ import { CalendarRange } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import * as React from "react";
 
+import { ExportLink } from "@/components/shell/export-link";
 import { DateRangePicker, type DateRange } from "@/components/ui/calendar";
 import { SegmentedControl } from "@/components/ui/choice";
 import {
@@ -73,6 +74,16 @@ export function AnalyticsFilters({
     });
   }
 
+  // The report covers whatever the page is showing, once it has loaded.
+  const exportParams = new URLSearchParams();
+  if (range.preset !== "12m") exportParams.set("range", range.preset);
+  if (range.preset === "custom") {
+    exportParams.set("from", range.start);
+    exportParams.set("to", range.end);
+  }
+  if (department) exportParams.set("dept", department);
+  const exportHref = `/analytics/export${exportParams.size ? `?${exportParams}` : ""}`;
+
   // Local midnight on both ends, as the calendar works in the viewer's zone.
   const min = new Date(`${dataStart}T00:00:00`);
   const max = new Date(`${today}T00:00:00`);
@@ -127,6 +138,9 @@ export function AnalyticsFilters({
             </SelectContent>
           </Select>
         </div>
+        <ExportLink href={exportHref} className="w-full sm:w-auto">
+          Export PDF
+        </ExportLink>
         <span className="sr-only" aria-live="polite">
           {pending ? "Updating reports" : ""}
         </span>
