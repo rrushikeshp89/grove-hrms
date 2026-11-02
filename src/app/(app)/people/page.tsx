@@ -1,5 +1,6 @@
 import { Upload } from "lucide-react";
 import type { Metadata } from "next";
+import dynamic from "next/dynamic";
 import Link from "next/link";
 import { Suspense } from "react";
 
@@ -8,7 +9,6 @@ import { PageContainer, PageHeader } from "@/components/shell/page-header";
 import { buttonVariants } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/primitives";
 import { CardGridSkeleton } from "@/components/ui/states";
-import { AddEmployeeSheet } from "@/features/people/components/add-employee-sheet";
 import {
   DirectoryPending,
   DirectoryToolbar,
@@ -22,9 +22,19 @@ import { actorOf, requireUser } from "@/server/session";
 
 export const metadata: Metadata = { title: "People" };
 
+// HR only, and it brings the whole forms stack, so nobody else should download it.
+const AddEmployeeSheet = dynamic(() =>
+  import("@/features/people/components/add-employee-sheet").then((m) => m.AddEmployeeSheet),
+);
+
+/** Cards in the first screenful, and how many each "show more" adds. */
+const PAGE_SIZE = 24;
+
 async function Directory({ searchParams }: { searchParams: PageProps<"/people">["searchParams"] }) {
   const user = await requireUser();
-  const filters = parseFilters(await searchParams);
+  const params = await searchParams;
+  const filters = parseFilters(params);
+  const show = Math.max(Number(params.show) || PAGE_SIZE, PAGE_SIZE);
   const canAdd = can(actorOf(user), "employee.create");
   const exportQuery = serializeFilters(filters);
   const [{ people, total }, options, jobOptions] = await Promise.all([
@@ -60,7 +70,15 @@ async function Directory({ searchParams }: { searchParams: PageProps<"/people">[
         <DirectoryToolbar filters={filters} options={options} shown={people.length} />
         <DirectoryPending>
           <PeopleResults
-            people={people.map((p) => ({ ...p, joinDate: p.joinDate.toISOString() }))}
+            people={(filters.view === "grid" ? people.slice(0, show) : people).map((p) => ({
+              ...p,
+              joinDate: p.joinDate.toISOString(),
+            }))}
+            total={people.length}
+            moreHref={`/people?${new URLSearchParams([
+              ...new URLSearchParams(exportQuery),
+              ["show", String(show + PAGE_SIZE)],
+            ])}`}
             view={filters.view}
             query={filters.q}
             filtered={activeFilterCount(filters) > 0}

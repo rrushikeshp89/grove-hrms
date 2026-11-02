@@ -1,6 +1,7 @@
 "use client";
 
-import { AnimatePresence, m as motion, useReducedMotion } from "motion/react";
+import { AnimatePresence, useReducedMotion } from "motion/react";
+import * as motion from "motion/react-m";
 import * as React from "react";
 
 /**

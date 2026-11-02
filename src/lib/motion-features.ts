@@ -1,2 +1,2 @@
-/** Motion's animation engine, loaded after first paint. See `Providers`. */
+/** Layout and drag animations, loaded after the page settles. See `Providers`. */
 export { domMax as default } from "motion/react";

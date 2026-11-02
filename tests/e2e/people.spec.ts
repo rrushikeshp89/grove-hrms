@@ -56,6 +56,18 @@ test.describe("directory", () => {
     await expect(page.getByRole("heading", { level: 1, name: "Malini Rajagopal" })).toBeVisible();
   });
 
+  test("shows a page of cards at a time, and more on request", async ({ page }) => {
+    await signInAs(page, "EMPLOYEE");
+    await page.goto("/people");
+    const cards = page.locator("main ul > li a[href^='/people/']");
+    await expect(cards).toHaveCount(24);
+    await retryUntil(
+      () => page.getByRole("link", { name: /^Show more/ }).click(),
+      () => expect(cards).toHaveCount(48, { timeout: 4000 }),
+    );
+    await expect(page).toHaveURL(/show=48/);
+  });
+
   test("an unknown search explains what to try", async ({ page }) => {
     await signInAs(page, "EMPLOYEE");
     await page.goto("/people?q=zzzz");
@@ -64,7 +76,7 @@ test.describe("directory", () => {
 
   test("former employees are hidden from everyone but HR", async ({ page }) => {
     await signInAs(page, "EMPLOYEE");
-    await page.goto("/people?status=EXITED");
+    await page.goto("/people?status=EXITED&show=200");
     await expect(page.getByText("Former employee")).toHaveCount(0);
     await expect(page.getByRole("link", { name: /^Siddharth Kashyap,/ })).toBeVisible();
   });

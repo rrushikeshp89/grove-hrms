@@ -1,6 +1,7 @@
 "use client";
 
-import { m as motion, useReducedMotion } from "motion/react";
+import { useReducedMotion } from "motion/react";
+import * as motion from "motion/react-m";
 import * as React from "react";
 
 import { easeOutSoft } from "@/lib/motion";

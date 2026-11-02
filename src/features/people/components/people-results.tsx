@@ -1,14 +1,18 @@
 import { MapPin, SearchX, UserRoundSearch, Users } from "lucide-react";
+import dynamic from "next/dynamic";
 import Link from "next/link";
 
 import { Avatar } from "@/components/ui/avatar";
+import { buttonVariants } from "@/components/ui/button";
 import { StatusPill } from "@/components/ui/badge";
 import { Card } from "@/components/ui/primitives";
 import { EmptyState } from "@/components/ui/states";
 
 import { displayName, STATUS_META } from "../format";
 import type { DirectoryPerson } from "../queries";
-import { PeopleTable } from "./people-table";
+
+// Sorting needs TanStack Table, which only this view should pay for.
+const PeopleTable = dynamic(() => import("./people-table").then((m) => m.PeopleTable));
 
 export type DirectoryRow = Omit<DirectoryPerson, "joinDate"> & { joinDate: string };
 
@@ -46,16 +50,20 @@ function PersonCard({ person }: { person: DirectoryRow }) {
 }
 
 /**
- * Rendered on the server: the grid has no state of its own, and a hundred
- * hydrated cards is most of what makes this page slow on a phone.
+ * Rendered on the server: the grid has no state of its own. It shows a page at
+ * a time, because every card is more for a phone to hydrate. Search finds anyone.
  */
 export function PeopleResults({
   people,
+  total,
+  moreHref,
   view,
   query,
   filtered,
 }: {
   people: DirectoryRow[];
+  total: number;
+  moreHref: string;
   view: "grid" | "table";
   query: string;
   filtered: boolean;
@@ -82,12 +90,27 @@ export function PeopleResults({
   if (view === "table") return <PeopleTable people={people} />;
 
   return (
-    <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
-      {people.map((p) => (
-        <li key={p.id} className="[contain-intrinsic-size:auto_11rem] [content-visibility:auto]">
-          <PersonCard person={p} />
-        </li>
-      ))}
-    </ul>
+    <div className="flex flex-col items-center gap-5">
+      <ul className="grid w-full grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+        {people.map((p) => (
+          <li key={p.id}>
+            <PersonCard person={p} />
+          </li>
+        ))}
+      </ul>
+      {people.length < total && (
+        <Link
+          href={moreHref}
+          scroll={false}
+          prefetch={false}
+          className={buttonVariants({ variant: "secondary" })}
+        >
+          Show more
+          <span className="num font-normal text-ink-muted">
+            {people.length} of {total}
+          </span>
+        </Link>
+      )}
+    </div>
   );
 }

@@ -2,7 +2,8 @@
 
 import { format } from "date-fns";
 import { CalendarCheck, CalendarX, Hourglass, Palmtree, X } from "lucide-react";
-import { AnimatePresence, m as motion } from "motion/react";
+import { AnimatePresence } from "motion/react";
+import * as motion from "motion/react-m";
 import { useRouter } from "next/navigation";
 import * as React from "react";
 

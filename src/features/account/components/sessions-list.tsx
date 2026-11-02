@@ -2,7 +2,8 @@
 
 import { formatDistanceToNowStrict } from "date-fns";
 import { Laptop, Smartphone } from "lucide-react";
-import { AnimatePresence, m as motion } from "motion/react";
+import { AnimatePresence } from "motion/react";
+import * as motion from "motion/react-m";
 import * as React from "react";
 
 import { Badge } from "@/components/ui/badge";
