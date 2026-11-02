@@ -13,7 +13,7 @@ We build one phase at a time; each phase ends with typecheck + lint + tests gree
 - `npm test`: Vitest, `src/**/*.test.ts`, node environment
 - `npm run test:e2e`: Playwright (builds and serves on :3100; desktop + Pixel 7 projects, axe scans in both themes). Needs `DATABASE_URL`; global setup reseeds a local DB first.
 - `npm run test:live`: `playwright.live.config.ts`, smoke tests plus the every-screen sweep against the deployed site (`LIVE_URL` overrides it)
-- `npx vercel deploy --prod`: deploys what's on disk until the GitHub integration is connected
+- Pushing to `main` deploys to production through Vercel's GitHub integration. `npx vercel deploy --prod` deploys what's on disk, for the rare case that's needed.
 - `npm run db:migrate` (deploy migrations), `npm run db:seed` (truncate + rebuild Northwind Grove), `npm run db:generate`
 - New migration: edit `prisma/schema.prisma`, then `npx prisma migrate dev --name <change>` against a dev DB (or `prisma migrate diff --from-config-datasource --to-schema prisma/schema.prisma --script` when no shadow DB is available)
 - `npm run format`: Prettier with the Tailwind class sorter

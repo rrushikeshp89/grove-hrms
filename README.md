@@ -503,7 +503,7 @@ docs/                    plan, deployment guide and screenshots
 
 - **Payroll is simulated.** It says so on every screen. Don't run real payroll through it.
 - **Email isn't sent.** Password reset messages are queued in a database table, and in demo mode the reset screen reads the link back. A real deployment needs a mail provider.
-- **The demo is shared.** Everyone uses the same four accounts and the same company, so you may see other visitors' changes.
+- **The demo is shared.** Everyone uses the same four accounts and the same company, so you may see other visitors' changes. It resets every night at 02:00 IST.
 - **Signed-in pages are slower on weak phones.** See the Lighthouse results above.
 - **Demo mode is on by default.** Set `DEMO_MODE=false` for anything real, which turns off one-click sign-in.
 

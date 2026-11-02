@@ -53,7 +53,7 @@ npm run db:seed
 
 If you change the region, change `regions` in `vercel.json` too, so functions stay next to the database.
 
-**Deploys on every push** need Vercel's GitHub app to have access to the repository: <https://github.com/apps/vercel/installations/select_target>, then `npx vercel git connect`.
+**Deploys on every push** are on for `main`. To set that up elsewhere, give Vercel's GitHub app access to the repository at <https://github.com/apps/vercel/installations/select_target>, then run `npx vercel git connect`.
 
 ## 4. Nightly demo reseed (optional)
 
