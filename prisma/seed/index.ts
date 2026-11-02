@@ -350,17 +350,22 @@ async function main() {
   });
 
   // ── Recruitment history ───────────────────────────────────────────────
-  const hiring = await seedHiring(db, rng, { today: todayIn(), fakerSeed: SEED + 1 });
+  // Each later step gets its own stream. Attendance uses more random numbers every
+  // day, so sharing one would reshuffle hiring, reviews and news with each reseed.
+  const hiring = await seedHiring(db, createRng(SEED + 10), {
+    today: todayIn(),
+    fakerSeed: SEED + 1,
+  });
 
   // ── Onboarding and offboarding ────────────────────────────────────────
-  const lifecycle = await seedLifecycle(db, rng, {
+  const lifecycle = await seedLifecycle(db, createRng(SEED + 20), {
     today: todayIn(),
     ids: employeeIds,
     hrId: employeeIds.get("hr")!,
   });
 
   // ── Goals and review cycles ───────────────────────────────────────────
-  const performance = await seedPerformance(db, rng, {
+  const performance = await seedPerformance(db, createRng(SEED + 30), {
     today: todayIn(),
     demoIds: {
       arjun: employeeIds.get("arjun")!,
@@ -371,7 +376,7 @@ async function main() {
   });
 
   // ── Documents ─────────────────────────────────────────────────────────
-  const documents = await seedDocuments(db, rng, {
+  const documents = await seedDocuments(db, createRng(SEED + 40), {
     today: todayIn(),
     hrId: employeeIds.get("hr")!,
     arjunId: employeeIds.get("arjun")!,
@@ -379,14 +384,14 @@ async function main() {
   });
 
   // ── Announcements ─────────────────────────────────────────────────────
-  const announcements = await seedAnnouncements(db, rng, {
+  const announcements = await seedAnnouncements(db, createRng(SEED + 50), {
     today: todayIn(),
     ids: employeeIds,
     arjunId: employeeIds.get("arjun")!,
   });
 
   // ── Simulated payroll ─────────────────────────────────────────────────
-  const payroll = await seedPayroll(db, rng, {
+  const payroll = await seedPayroll(db, createRng(SEED + 60), {
     today: todayIn(),
     preparerId: employeeIds.get("hr")!,
     finalizerId: employeeIds.get("coo")!,

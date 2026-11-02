@@ -10,10 +10,15 @@
 **A human resource management system people actually enjoy using.**<br>
 Calm, warm and quietly delightful, built with production-grade engineering.
 
+### [Open the live demo](https://grove-hrms.vercel.app)
+
+One click signs you in. No account needed.
+
 [![CI status](https://github.com/rrushikeshp89/grove-hrms/actions/workflows/ci.yml/badge.svg)](https://github.com/rrushikeshp89/grove-hrms/actions/workflows/ci.yml)
-![367 unit tests](https://img.shields.io/badge/unit_tests-367-2E7D32?style=flat-square)
+[![Live demo](https://img.shields.io/badge/live_demo-grove--hrms.vercel.app-1F5A47?style=flat-square&logo=vercel&logoColor=white)](https://grove-hrms.vercel.app)
+![369 unit tests](https://img.shields.io/badge/unit_tests-369-2E7D32?style=flat-square)
 ![0 serious axe violations](https://img.shields.io/badge/axe-0_serious_violations-7B2D8E?style=flat-square)
-![Lighthouse accessibility 98 to 100](https://img.shields.io/badge/Lighthouse_a11y-98--100-F44B21?style=flat-square&logo=lighthouse&logoColor=white)
+![Lighthouse accessibility 100](https://img.shields.io/badge/Lighthouse_a11y-100-F44B21?style=flat-square&logo=lighthouse&logoColor=white)
 ![Status: all 9 phases complete](https://img.shields.io/badge/status-9_of_9_phases_complete-1F5A47?style=flat-square)
 
 [Try it](#try-it-in-two-minutes) ·
@@ -100,7 +105,7 @@ Every technology in the project, with the version it actually uses.
 
 ## Try it in two minutes
 
-Sign in at `/login` with one click as any of four people at **Northwind Grove**, a fictional Bengaluru company of about 100 employees. The password for every account is `grove-demo-2026`, and the account menu switches between the demo roles without signing out.
+[Open Grove](https://grove-hrms.vercel.app) and sign in with one click as any of four people at **Northwind Grove**, a fictional Bengaluru company of about 100 employees. The password for every account is `grove-demo-2026`, and the account menu switches between the demo roles without signing out.
 
 | Sign in as       | Who                                          | Email                               | Try this                                                                                                                                                |
 | ---------------- | -------------------------------------------- | ----------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -111,6 +116,20 @@ Sign in at `/login` with one click as any of four people at **Northwind Grove**,
 
 > [!TIP]
 > Everything is also reachable from the keyboard. Press `?` anywhere to see every shortcut, or `Ctrl K` (`Cmd K` on a Mac) for the command palette.
+
+### See it move
+
+**Search everything, then start a leave request from the keyboard.** The palette searches people, jobs, policies and more, and `n` then `l` opens the form from anywhere.
+
+<img src="docs/screenshots/demo-search.gif" alt="Pressing Ctrl K, typing remote, seeing a policy with the match highlighted, then pressing n and l to open the leave request sheet" width="840">
+
+**Drag a candidate through hiring.** The same move works with a keyboard or the card's menu, and screen readers hear each step.
+
+<img src="docs/screenshots/demo-hiring.gif" alt="Dragging a candidate card from one column of the hiring board to the Interview column, where it stays" width="840">
+
+**Every chart is also a table.** Change the period, flip a chart to its numbers, and switch the theme.
+
+<img src="docs/screenshots/demo-analytics.gif" alt="Switching analytics to six months, turning the headcount chart into a table and back, then changing to the dark theme" width="840">
 
 ### Screenshots
 
@@ -333,7 +352,7 @@ sequenceDiagram
     <th scope="col">What it covers</th>
   </tr>
   <tr>
-    <td><strong>367 unit tests</strong></td>
+    <td><strong>369 unit tests</strong></td>
     <td>Leave, payroll, review visibility, CSV import and export, search, reminders, storage, permissions and design-token contrast.</td>
   </tr>
   <tr>
@@ -345,25 +364,28 @@ sequenceDiagram
     <td>Opens each screen as the role that owns it and fails on console errors, sideways scrolling or serious axe violations. Also checks the skip link, visible focus and focus trapping in dialogs.</td>
   </tr>
   <tr>
+    <td><strong>Live checks</strong></td>
+    <td>The same sweep runs against the deployed site with <code>npm run test:live</code>, plus HTTPS cookies, PDF rendering in serverless functions, and a real upload, download and delete through the file store.</td>
+  </tr>
+  <tr>
     <td><strong>Continuous integration</strong></td>
     <td>Typecheck, lint and unit tests, then the full Playwright suite against a real Postgres, on every push.</td>
   </tr>
 </table>
 
 <details>
-<summary><strong>Lighthouse results</strong> (production build, local database)</summary>
+<summary><strong>Lighthouse results</strong> (live site)</summary>
 <br>
 
-Scores are performance / accessibility / best practices / SEO.
+Scores are performance / accessibility / best practices.
 
-| Page      | Desktop              | Mobile, simulated slow 4G |
-| --------- | -------------------- | ------------------------- |
-| Sign in   | 99 / 100 / 100 / 100 | 81 / 100 / 100 / 100      |
-| Home      | 95 / 100 / 100 / 100 | 67 / 100 / 100 / 100      |
-| People    | 98 / 100 / 100 / 100 | 65 / 100 / 100 / 100      |
-| Analytics | 97 / 100 / 100 / 100 | 53 / 100 / 100 / 100      |
+| Page    | Desktop         | Mobile, simulated slow 4G |
+| ------- | --------------- | ------------------------- |
+| Sign in | 100 / 100 / 100 | 94 to 99 / 100 / 100      |
+| Home    | 97 / 100 / 100  | 78 / 100 / 100            |
+| People  | 99 / 100 / 100  | 72 / 100 / 100            |
 
-Desktop clears 90 everywhere. The mobile column is Lighthouse's harshest profile (4x CPU slowdown, 1.6 Mbps). Without throttling, sign in scores 100 with a 1.1 second largest paint. The remaining mobile cost is JavaScript weight, and the numbers include a slow single-connection local database, so treat them as a floor. Trimming the Motion bundle is the next lever.
+Desktop clears 90 everywhere, and so does the sign-in page on Lighthouse's harshest mobile profile (4x CPU slowdown, 1.6 Mbps). Signed-in pages fall short of 90 on that profile. They wait for the session and live data before their main content appears, and they load a full client app, so they are the next thing to improve. SEO scores 100 on the public pages; private pages are deliberately closed to crawlers.
 
 </details>
 
@@ -437,18 +459,19 @@ Open <http://localhost:3000> and pick a role.
 <summary><strong>All npm scripts</strong></summary>
 <br>
 
-| Command                                           | What it does                                                    |
-| ------------------------------------------------- | --------------------------------------------------------------- |
-| `npm run dev`                                     | Dev server on port 3000                                         |
-| `npm run build` / `npm start`                     | Production build and server                                     |
-| `npm run check`                                   | Typecheck, lint and unit tests. Must be clean before a commit   |
-| `npm run typecheck` / `npm run lint` / `npm test` | Each of those on its own                                        |
-| `npm run test:e2e`                                | Playwright on desktop and mobile, with axe scans in both themes |
-| `npm run format`                                  | Prettier, with the Tailwind class sorter                        |
-| `npm run db:migrate`                              | Apply migrations                                                |
-| `npm run db:seed`                                 | Truncate and rebuild the demo company                           |
-| `npm run db:reset`                                | Migrate, then seed                                              |
-| `npm run db:studio`                               | Browse the data in Prisma Studio                                |
+| Command                                           | What it does                                                     |
+| ------------------------------------------------- | ---------------------------------------------------------------- |
+| `npm run dev`                                     | Dev server on port 3000                                          |
+| `npm run build` / `npm start`                     | Production build and server                                      |
+| `npm run check`                                   | Typecheck, lint and unit tests. Must be clean before a commit    |
+| `npm run typecheck` / `npm run lint` / `npm test` | Each of those on its own                                         |
+| `npm run test:e2e`                                | Playwright on desktop and mobile, with axe scans in both themes  |
+| `npm run test:live`                               | Smoke tests and the every-screen sweep against the deployed site |
+| `npm run format`                                  | Prettier, with the Tailwind class sorter                         |
+| `npm run db:migrate`                              | Apply migrations                                                 |
+| `npm run db:seed`                                 | Truncate and rebuild the demo company                            |
+| `npm run db:reset`                                | Migrate, then seed                                               |
+| `npm run db:studio`                               | Browse the data in Prisma Studio                                 |
 
 End-to-end tests need `DATABASE_URL`. Before each run they reseed the database, and they only do that for a local database unless you set `E2E_ALLOW_RESEED=1`.
 
@@ -480,7 +503,8 @@ docs/                    plan, deployment guide and screenshots
 
 - **Payroll is simulated.** It says so on every screen. Don't run real payroll through it.
 - **Email isn't sent.** Password reset messages are queued in a database table, and in demo mode the reset screen reads the link back. A real deployment needs a mail provider.
-- **Not deployed yet.** There is no public demo link. [`docs/DEPLOY.md`](docs/DEPLOY.md) has the Supabase and Vercel steps, and the Supabase file-storage adapter has been tested against a mock but not a live project.
+- **The demo is shared.** Everyone uses the same four accounts and the same company, so you may see other visitors' changes.
+- **Signed-in pages are slower on weak phones.** See the Lighthouse results above.
 - **Demo mode is on by default.** Set `DEMO_MODE=false` for anything real, which turns off one-click sign-in.
 
 ## Project docs

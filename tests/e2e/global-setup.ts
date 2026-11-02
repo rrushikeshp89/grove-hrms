@@ -15,5 +15,10 @@ export default function globalSetup() {
     );
     return;
   }
-  execSync("npm run db:seed", { stdio: "inherit" });
+  // .env.local may hold the live site's settings, and the seed prefers DIRECT_URL.
+  // Setting these here wins over that file, so a test run can't touch production.
+  execSync("npm run db:seed", {
+    stdio: "inherit",
+    env: { ...process.env, DIRECT_URL: url, SUPABASE_URL: "", SUPABASE_SERVICE_ROLE_KEY: "" },
+  });
 }

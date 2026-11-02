@@ -12,6 +12,8 @@ We build one phase at a time; each phase ends with typecheck + lint + tests gree
 - `npm run typecheck`: runs `next typegen` first (needed for `LayoutProps`/`PageProps`)
 - `npm test`: Vitest, `src/**/*.test.ts`, node environment
 - `npm run test:e2e`: Playwright (builds and serves on :3100; desktop + Pixel 7 projects, axe scans in both themes). Needs `DATABASE_URL`; global setup reseeds a local DB first.
+- `npm run test:live`: `playwright.live.config.ts`, smoke tests plus the every-screen sweep against the deployed site (`LIVE_URL` overrides it)
+- `npx vercel deploy --prod`: deploys what's on disk until the GitHub integration is connected
 - `npm run db:migrate` (deploy migrations), `npm run db:seed` (truncate + rebuild Northwind Grove), `npm run db:generate`
 - New migration: edit `prisma/schema.prisma`, then `npx prisma migrate dev --name <change>` against a dev DB (or `prisma migrate diff --from-config-datasource --to-schema prisma/schema.prisma --script` when no shadow DB is available)
 - `npm run format`: Prettier with the Tailwind class sorter
@@ -101,7 +103,8 @@ tests/e2e/               Playwright
 
 ## Environment
 
-- Supabase Postgres. The runtime uses the pooled URL (:6543, `DATABASE_URL`) and migrations/seed use the direct URL (:5432, `DIRECT_URL`), both in `.env.local` (never committed; see `.env.example`).
+- **Live at https://grove-hrms.vercel.app** (Vercel `grove-hrms`, region `bom1`; Supabase `grove-hrms`, `ap-south-1`). `.env.local` points at that real database, so `npm run db:seed` from this machine wipes the live demo.
+- Supabase Postgres. The runtime uses the transaction pooler (:6543, `DATABASE_URL`) and migrations/seed use the session pooler (:5432, `DIRECT_URL`), both in `.env.local` (never committed; see `.env.example`). Both need `sslmode=require&uselibpqcompat=true`.
 - Without Supabase credentials, a local stand-in works: run PGlite's socket server (`@electric-sql/pglite-socket`, installed outside the repo) on :54329 and set `DATABASE_URL=postgresql://postgres:postgres@127.0.0.1:54329/postgres?sslmode=disable` plus `DATABASE_POOL_MAX=1` (PGlite interleaves concurrent connections).
 - Uploaded documents are written to `.uploads/` (override with `UPLOAD_DIR`). The seed recreates the demo files there.
 - GitHub remote: `rrushikeshp89/grove-hrms` (public).

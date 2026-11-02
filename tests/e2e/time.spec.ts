@@ -126,11 +126,12 @@ test.describe("time and approvals", () => {
     await signInAs(page, "EMPLOYEE");
     await page.goto("/attendance");
     await page
-      // An older day: today's clock-in can be later than the clock-out this test types.
       .getByRole("button", { name: /^Correct / })
       .last()
       .click();
     const sheet = page.getByRole("dialog", { name: "Correct a day" });
+    // Both times, so the result doesn't depend on when today's clock-in happened.
+    await sheet.getByLabel("Clocked in at").fill("09:30");
     await sheet.getByLabel("Clocked out at").fill("19:05");
     await sheet.getByLabel("What happened?").fill("Forgot to clock out after the release");
     await sheet.getByRole("button", { name: "Send for approval" }).click();

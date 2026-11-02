@@ -35,6 +35,10 @@ export default defineConfig({
       DEMO_MODE: "true",
       AUTH_RATE_LIMIT: "off",
       DATABASE_POOL_MAX: process.env.DATABASE_POOL_MAX ?? "",
+      // Keep the server off anything live that .env.local points at.
+      SUPABASE_URL: "",
+      SUPABASE_SERVICE_ROLE_KEY: "",
+      CRON_SECRET: "",
     },
   },
 });

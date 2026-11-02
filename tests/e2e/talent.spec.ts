@@ -79,7 +79,7 @@ test.describe("hiring and lifecycle", () => {
   test("a mouse drop lands in the column under the pointer", async ({ page }) => {
     await signInAs(page, "HR_MANAGER");
     await openRole(page, "Senior Backend Engineer");
-    const name = await firstName(column(page, "Applied"));
+    const name = await firstName(column(page, "Screening"));
     const handle = page.getByRole("button", { name: `Move ${name}` });
     await expect(async () => {
       const from = (await handle.boundingBox())!;
@@ -273,13 +273,19 @@ test.describe("who can do what", () => {
     await signInAs(page, "TEAM_MANAGER");
     const main = page.locator("main");
     await expect(main.getByRole("heading", { name: "Your tasks" })).toBeVisible();
-    await expect(main.getByText("Ojaswini Mishra's onboarding").first()).toBeVisible();
+    await expect(main.getByText(/'s onboarding$/).first()).toBeVisible();
   });
 
   test("a manager can only tick their own tasks", async ({ page }) => {
     await signInAs(page, "TEAM_MANAGER");
+    // Priya's new joiner, whoever the seed hired this time.
+    const onboarding = (await page
+      .locator("main")
+      .getByText(/'s onboarding$/)
+      .first()
+      .textContent())!;
     await page.goto("/lifecycle");
-    await page.getByRole("link", { name: "Ojaswini Mishra" }).click();
+    await page.getByRole("link", { name: onboarding.replace(/'s onboarding$/, "") }).click();
     await expect(page.getByRole("checkbox", { name: "Order and set up a laptop" })).toBeDisabled();
     await expect(page.getByRole("checkbox", { name: "Plan the first two weeks" })).toBeEnabled();
   });
@@ -308,7 +314,8 @@ test.describe("accessibility", () => {
     await signInAs(page, "HR_MANAGER");
     await page.goto("/lifecycle");
     expect(await seriousViolations(page)).toEqual([]);
-    await page.getByRole("link", { name: "Ojaswini Mishra" }).click();
+    await page.locator("main a[href^='/lifecycle/']:not([href$='/templates'])").first().click();
+    await expect(page).toHaveURL(/\/lifecycle\/(?!templates)[^/]+$/);
     await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
     expect(await seriousViolations(page)).toEqual([]);
     await page.goto("/lifecycle/templates");
