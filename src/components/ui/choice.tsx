@@ -1,7 +1,7 @@
 "use client";
 
 import { Check, Minus } from "lucide-react";
-import { motion } from "motion/react";
+import { m as motion } from "motion/react";
 import {
   Checkbox as CheckboxPrimitive,
   RadioGroup as RadioPrimitive,

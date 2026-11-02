@@ -406,9 +406,7 @@
 /* Fraunces with its soft, low-contrast setting for display text. */
 @utility font-display-soft {
   font-family: var(--font-display);
-  font-variation-settings:
-    "SOFT" 50,
-    "WONK" 0;
+  font-variation-settings: "SOFT" 50;
   font-optical-sizing: auto;
 }
 

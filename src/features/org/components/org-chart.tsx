@@ -2,7 +2,7 @@
 
 import { hierarchy, tree as d3tree } from "d3-hierarchy";
 import { ArrowRight, ChevronDown, ChevronUp, Maximize, Minus, Plus, Users } from "lucide-react";
-import { AnimatePresence, motion, useReducedMotion } from "motion/react";
+import { AnimatePresence, m as motion, useReducedMotion } from "motion/react";
 import Link from "next/link";
 import * as React from "react";
 

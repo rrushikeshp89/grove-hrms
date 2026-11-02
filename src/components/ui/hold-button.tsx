@@ -1,6 +1,6 @@
 "use client";
 
-import { animate, motion, useMotionValue, useReducedMotion, useTransform } from "motion/react";
+import { m as motion, useReducedMotion } from "motion/react";
 import * as React from "react";
 
 import { snappy } from "@/lib/motion";
@@ -32,10 +32,29 @@ export function HoldButton({
   className?: string;
 }) {
   const reduce = useReducedMotion();
-  const progress = useMotionValue(0);
-  const ring = useTransform(progress, [0, 1], [0, 1]);
-  const anim = React.useRef<ReturnType<typeof animate> | null>(null);
+  const ring = React.useRef<SVGCircleElement>(null);
+  const progress = React.useRef(0);
+  const frame = React.useRef(0);
   const [pulse, setPulse] = React.useState(0);
+
+  React.useEffect(() => () => cancelAnimationFrame(frame.current), []);
+
+  /** Moves the ring to `to` over `ms`, then calls `done`. */
+  function run(to: number, ms: number, delay = 0, done?: () => void) {
+    cancelAnimationFrame(frame.current);
+    const from = progress.current;
+    const started = performance.now() + delay;
+    frame.current = requestAnimationFrame(function tick(now) {
+      const t = ms > 0 ? Math.min(Math.max((now - started) / ms, 0), 1) : 1;
+      progress.current = from + (to - from) * t;
+      if (ring.current) {
+        ring.current.style.strokeDashoffset = String(1 - progress.current);
+        ring.current.style.opacity = progress.current > 0 ? "1" : "0";
+      }
+      if (t < 1) frame.current = requestAnimationFrame(tick);
+      else done?.();
+    });
+  }
 
   const confirm = React.useCallback(() => {
     setPulse((p) => p + 1);
@@ -44,21 +63,15 @@ export function HoldButton({
 
   function start() {
     if (disabled) return;
-    anim.current?.stop();
-    anim.current = animate(progress, 1, {
-      duration: (holdMs / 1000) * (1 - progress.get()),
-      ease: "linear",
-      onComplete: () => {
-        confirm();
-        animate(progress, 0, { duration: 0.35, delay: 0.25 });
-      },
+    run(1, holdMs * (1 - progress.current), 0, () => {
+      confirm();
+      run(0, 350, 250);
     });
   }
 
   function cancel() {
-    if (progress.get() >= 1) return;
-    anim.current?.stop();
-    animate(progress, 0, { duration: 0.2 });
+    if (progress.current >= 1) return;
+    run(0, 200);
   }
 
   const size = 132;
@@ -102,7 +115,8 @@ export function HoldButton({
           strokeWidth={stroke}
           className="stroke-surface-active"
         />
-        <motion.circle
+        <circle
+          ref={ring}
           cx={size / 2}
           cy={size / 2}
           r={r}
@@ -110,7 +124,10 @@ export function HoldButton({
           strokeWidth={stroke}
           strokeLinecap="round"
           className={tone === "accent" ? "stroke-accent" : "stroke-ink"}
-          style={{ pathLength: ring }}
+          pathLength={1}
+          strokeDasharray={1}
+          strokeDashoffset={1}
+          opacity={0}
         />
       </svg>
       <motion.span

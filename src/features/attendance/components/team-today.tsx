@@ -1,7 +1,7 @@
 "use client";
 
 import { Coffee, MapPin } from "lucide-react";
-import { AnimatePresence, motion } from "motion/react";
+import { AnimatePresence, m as motion } from "motion/react";
 import Link from "next/link";
 import * as React from "react";
 

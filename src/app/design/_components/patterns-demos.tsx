@@ -14,7 +14,7 @@ import {
   Sprout,
   Upload,
 } from "lucide-react";
-import { AnimatePresence, motion } from "motion/react";
+import { AnimatePresence, m as motion } from "motion/react";
 import * as React from "react";
 
 import { Avatar } from "@/components/ui/avatar";

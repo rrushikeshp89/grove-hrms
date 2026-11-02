@@ -1,8 +1,3 @@
-"use client";
-
-import { Avatar as AvatarPrimitive } from "radix-ui";
-import * as React from "react";
-
 import { initials } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
@@ -51,25 +46,31 @@ export function Avatar({
   labelled?: boolean;
 }) {
   return (
-    <AvatarPrimitive.Root
+    <span
       role={labelled ? "img" : undefined}
       aria-label={labelled ? name : undefined}
       aria-hidden={labelled ? undefined : true}
       className={cn(
-        "relative inline-flex shrink-0 overflow-hidden rounded-full font-medium select-none",
+        "relative inline-grid shrink-0 place-items-center overflow-hidden rounded-full font-medium select-none",
         sizes[size],
+        fills[hash(name) % fills.length],
         ring && "ring-2 ring-surface",
         className,
       )}
     >
-      {src && <AvatarPrimitive.Image src={src} alt="" className="size-full object-cover" />}
-      <AvatarPrimitive.Fallback
-        className={cn("grid size-full place-items-center", fills[hash(name) % fills.length])}
-        delayMs={src ? 400 : 0}
-      >
-        <span aria-hidden>{initials(name)}</span>
-      </AvatarPrimitive.Fallback>
-    </AvatarPrimitive.Root>
+      <span aria-hidden>{initials(name)}</span>
+      {/* A failed image renders nothing, so the initials show through. */}
+      {src && (
+        // eslint-disable-next-line @next/next/no-img-element -- renders on the server with no JS, from any host
+        <img
+          src={src}
+          alt=""
+          loading="lazy"
+          decoding="async"
+          className="absolute inset-0 size-full object-cover"
+        />
+      )}
+    </span>
   );
 }
 

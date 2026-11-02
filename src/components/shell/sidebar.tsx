@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { PanelLeftClose, PanelLeftOpen } from "lucide-react";
-import { motion } from "motion/react";
+import { m as motion } from "motion/react";
 import * as React from "react";
 
 import { Tooltip } from "@/components/ui/tooltip";

@@ -1,10 +1,9 @@
 "use client";
 
-import { animate, useInView, useReducedMotion } from "motion/react";
+import { useInView, useReducedMotion } from "motion/react";
 import { ArrowDownRight, ArrowUpRight } from "lucide-react";
 import * as React from "react";
 
-import { easeOutSoft } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 
 /**
@@ -31,14 +30,13 @@ export function CountUp({
   React.useEffect(() => {
     const el = ref.current;
     if (!el || !inView || reduce) return;
-    const controls = animate(0, value, {
-      duration,
-      ease: easeOutSoft,
-      onUpdate: (n) => {
-        el.textContent = render(n);
-      },
+    const started = performance.now();
+    let frame = requestAnimationFrame(function tick(now) {
+      const t = Math.min((now - started) / (duration * 1000), 1);
+      el.textContent = render(value * (1 - (1 - t) ** 3));
+      if (t < 1) frame = requestAnimationFrame(tick);
     });
-    return () => controls.stop();
+    return () => cancelAnimationFrame(frame);
   }, [inView, reduce, value, duration]);
 
   return (
