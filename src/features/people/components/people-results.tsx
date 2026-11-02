@@ -1,5 +1,4 @@
 import { MapPin, SearchX, UserRoundSearch, Users } from "lucide-react";
-import dynamic from "next/dynamic";
 import Link from "next/link";
 
 import { Avatar } from "@/components/ui/avatar";
@@ -10,9 +9,7 @@ import { EmptyState } from "@/components/ui/states";
 
 import { displayName, STATUS_META } from "../format";
 import type { DirectoryPerson } from "../queries";
-
-// Sorting needs TanStack Table, which only this view should pay for.
-const PeopleTable = dynamic(() => import("./people-table").then((m) => m.PeopleTable));
+import { PeopleTable } from "./lazy";
 
 export type DirectoryRow = Omit<DirectoryPerson, "joinDate"> & { joinDate: string };
 

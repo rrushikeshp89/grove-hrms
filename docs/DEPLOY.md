@@ -71,6 +71,12 @@ The nightly run also keeps a free Supabase project from pausing after a week wit
 
 `ci.yml` runs on every push and pull request: typecheck, lint and unit tests, then the Playwright suite (desktop and mobile, with accessibility scans in both themes) against a throwaway Postgres container. It needs no secrets.
 
+## Database security
+
+Grove signs people in with Better Auth and connects to Postgres as the table owner, then authorizes every request in code. It doesn't use Supabase Auth or the auto-generated Data API. So the migrations turn on row level security for every table with **no policies**, which means "deny all" for the Data API, and remove its roles' grants. The owner isn't subject to RLS, so the app isn't affected.
+
+If Supabase's advisor suggests owner-only policies or `auth.uid()`, they don't apply here: nothing connects through those roles. Any new table must enable RLS in its migration; the seed refuses to finish otherwise, which fails CI.
+
 ## What is and isn't production-ready
 
 - Authentication, sessions, role checks and audit logging are real. Sign-up is disabled; accounts come from the seed or from HR.

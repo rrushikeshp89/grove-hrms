@@ -331,6 +331,7 @@ sequenceDiagram
 
 **Design decisions worth knowing**
 
+- **The database has one door.** Every table has row level security on with no policies, so Supabase's public API can't reach any of it. Only the server connects, and it checks permissions in code.
 - **Every check is on the server.** The proxy only redirects people with no cookie. Pages, actions and route handlers each call `requireUser` or `requirePermission`, and queries filter by what the person may see.
 - **One way to change data.** `createAction` runs the same steps every time, and the change, its audit entries and its notifications commit together or not at all.
 - **Business rules are plain functions** (leave balances, payroll, review visibility, CSV checks, reminders) with their own unit tests, shared by the UI previews and the server.
@@ -393,15 +394,13 @@ sequenceDiagram
 <summary><strong>Lighthouse results</strong> (live site)</summary>
 <br>
 
-Scores are performance / accessibility / best practices.
+| Page    | Desktop performance | Mobile performance, simulated slow 4G | Accessibility |
+| ------- | ------------------- | ------------------------------------- | ------------- |
+| Sign in | 100                 | 85 (78 to 99 across runs)             | 100           |
+| Home    | 99                  | 72 (61 to 84 across runs)             | 100           |
+| People  | 100                 | 72 (67 to 79 across runs)             | 100           |
 
-| Page    | Desktop         | Mobile, simulated slow 4G |
-| ------- | --------------- | ------------------------- |
-| Sign in | 100 / 100 / 100 | 94 to 99 / 100 / 100      |
-| Home    | 97 / 100 / 100  | 78 / 100 / 100            |
-| People  | 99 / 100 / 100  | 72 / 100 / 100            |
-
-Desktop clears 90 everywhere, and so does the sign-in page on Lighthouse's harshest mobile profile (4x CPU slowdown, 1.6 Mbps). Signed-in pages fall short of 90 on that profile. They wait for the session and live data before their main content appears, and they load a full client app, so they are the next thing to improve. SEO scores 100 on the public pages; private pages are deliberately closed to crawlers.
+Mobile figures are medians from one laptop, which is why they are given as ranges. That profile applies a 4x CPU slowdown and 1.6 Mbps, and desktop clears 90 everywhere. Signed-in pages fall short of 90 on it because they wait for the session and live data, then hydrate a full client app. With real throttling applied rather than simulated, the largest paint lands at about 2.5 to 3 seconds. Moving page headers into the static shell is the next improvement. SEO scores 100 on public pages; private pages are deliberately closed to crawlers.
 
 </details>
 

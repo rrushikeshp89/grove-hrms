@@ -400,6 +400,16 @@ async function main() {
   // ── Notifications ─────────────────────────────────────────────────────
   const notifications = await seedNotifications(db);
 
+  // A table without RLS is open to anyone through Supabase's Data API. Failing here
+  // stops it in CI and the nightly reseed, since both run this script.
+  const open = await db.$queryRaw<{ tablename: string }[]>`
+    SELECT tablename FROM pg_tables WHERE schemaname = 'public' AND NOT rowsecurity`;
+  if (open.length > 0) {
+    throw new Error(
+      `Row level security is off on: ${open.map((t) => t.tablename).join(", ")}. Enable it in a migration.`,
+    );
+  }
+
   const [employeeCount, userCount] = await Promise.all([db.employee.count(), db.user.count()]);
   const demo = await db.user.findMany({
     where: { isDemo: true },

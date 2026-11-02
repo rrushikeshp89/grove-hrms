@@ -1,6 +1,5 @@
 import { Upload } from "lucide-react";
 import type { Metadata } from "next";
-import dynamic from "next/dynamic";
 import Link from "next/link";
 import { Suspense } from "react";
 
@@ -14,6 +13,7 @@ import {
   DirectoryToolbar,
   DirectoryTransitionProvider,
 } from "@/features/people/components/directory-toolbar";
+import { AddEmployeeSheet } from "@/features/people/components/lazy";
 import { PeopleResults } from "@/features/people/components/people-results";
 import { activeFilterCount, parseFilters, serializeFilters } from "@/features/people/filters";
 import { getDirectoryOptions, getJobOptions, listPeople } from "@/features/people/queries";
@@ -21,11 +21,6 @@ import { can } from "@/lib/rbac";
 import { actorOf, requireUser } from "@/server/session";
 
 export const metadata: Metadata = { title: "People" };
-
-// HR only, and it brings the whole forms stack, so nobody else should download it.
-const AddEmployeeSheet = dynamic(() =>
-  import("@/features/people/components/add-employee-sheet").then((m) => m.AddEmployeeSheet),
-);
 
 /** Cards in the first screenful, and how many each "show more" adds. */
 const PAGE_SIZE = 24;
