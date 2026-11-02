@@ -104,4 +104,4 @@ tests/e2e/               Playwright
 - Supabase Postgres. The runtime uses the pooled URL (:6543, `DATABASE_URL`) and migrations/seed use the direct URL (:5432, `DIRECT_URL`), both in `.env.local` (never committed; see `.env.example`).
 - Without Supabase credentials, a local stand-in works: run PGlite's socket server (`@electric-sql/pglite-socket`, installed outside the repo) on :54329 and set `DATABASE_URL=postgresql://postgres:postgres@127.0.0.1:54329/postgres?sslmode=disable` plus `DATABASE_POOL_MAX=1` (PGlite interleaves concurrent connections).
 - Uploaded documents are written to `.uploads/` (override with `UPLOAD_DIR`). The seed recreates the demo files there.
-- GitHub remote: `rrushikeshp89/grove-hrms` (private).
+- GitHub remote: `rrushikeshp89/grove-hrms` (public).

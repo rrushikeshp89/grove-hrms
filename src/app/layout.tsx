@@ -14,9 +14,20 @@ const fraunces = Fraunces({
   axes: ["SOFT", "WONK", "opsz"],
 });
 
+const description = "Grove is a calm, considered HR platform for people, time, pay and growth.";
+
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.BETTER_AUTH_URL ?? "http://localhost:3000"),
   title: { default: "Grove", template: "%s · Grove" },
-  description: "Grove is a calm, considered HR platform for people, time, pay and growth.",
+  description,
+  openGraph: {
+    type: "website",
+    siteName: "Grove",
+    title: "Grove",
+    description,
+    images: [{ url: "/og.png", width: 1360, height: 860, alt: "Grove's home screen" }],
+  },
+  twitter: { card: "summary_large_image", title: "Grove", description, images: ["/og.png"] },
 };
 
 export const viewport: Viewport = {

@@ -1,0 +1,8 @@
+.env*
+.uploads
+.github
+docs
+tests
+test-results
+playwright-report
+*.log

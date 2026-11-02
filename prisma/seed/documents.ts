@@ -4,12 +4,10 @@
  * couple of personal uploads for the demo people.
  */
 import { randomUUID } from "node:crypto";
-import { rm } from "node:fs/promises";
-import path from "node:path";
 
 import { safeFileName } from "../../src/features/documents/logic/rules";
 import type { PrismaClient } from "../../src/generated/prisma/client";
-import { storage, uploadRoot } from "../../src/lib/storage";
+import { storage } from "../../src/lib/storage";
 import { addDays, instantAt, isoFromDbDate, type ISODate } from "../../src/lib/tz";
 import { simplePdf } from "./pdf";
 import type { Rng } from "./rng";
@@ -125,7 +123,8 @@ export async function seedDocuments(
   rng: Rng,
   opts: { today: ISODate; hrId: string; arjunId: string; priyaId: string },
 ) {
-  await rm(path.join(uploadRoot(), "docs"), { recursive: true, force: true });
+  // Every run makes new keys, so clear the last run or the store fills up.
+  await storage.deleteFolder("docs");
 
   async function add(input: {
     ownerId: string | null;

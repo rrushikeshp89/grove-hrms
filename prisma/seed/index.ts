@@ -32,7 +32,8 @@ import { createRng } from "./rng";
 const SEED = 20261029;
 const DOMAIN = "northwindgrove.in";
 
-const url = process.env.DATABASE_URL;
+// Bulk work wants a real connection, not the transaction pooler the app uses.
+const url = process.env.DIRECT_URL ?? process.env.DATABASE_URL;
 if (!url) throw new Error("DATABASE_URL is not set. Add it to .env.local (see .env.example).");
 const db = new PrismaClient({ adapter: new PrismaPg({ connectionString: url }) });
 

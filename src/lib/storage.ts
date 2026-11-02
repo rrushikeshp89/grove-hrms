@@ -14,6 +14,8 @@ export type Storage = {
   put(key: string, data: Uint8Array): Promise<void>;
   get(key: string): Promise<Buffer | null>;
   delete(key: string): Promise<void>;
+  /** Removes everything under a folder. The seed uses it so a reseed leaves no orphans. */
+  deleteFolder(prefix: string): Promise<void>;
 };
 
 export const uploadRoot = () =>
@@ -45,6 +47,9 @@ export function createLocalStorage(): Storage {
     async delete(key) {
       await rm(resolveKey(key), { force: true });
     },
+    async deleteFolder(prefix) {
+      await rm(resolveKey(prefix), { recursive: true, force: true });
+    },
   };
 }
 
@@ -54,6 +59,8 @@ type SupabaseOptions = {
   bucket?: string;
   fetch?: typeof fetch;
 };
+
+const LIST_PAGE = 1000;
 
 /** Keys are folder-like paths; encode each segment and refuse anything that climbs out. */
 function objectPath(key: string) {
@@ -100,6 +107,28 @@ export function createSupabaseStorage({
     });
   }
 
+  /** Every file below a folder. The list call shows one level; folders have no id. */
+  async function listFiles(prefix: string): Promise<string[]> {
+    const found: string[] = [];
+    for (let offset = 0; ; offset += LIST_PAGE) {
+      const res = await doFetch(`${base}/object/list/${bucket}`, {
+        method: "POST",
+        headers: { ...headers, "Content-Type": "application/json" },
+        body: JSON.stringify({ prefix, limit: LIST_PAGE, offset }),
+      });
+      // A bucket that doesn't exist yet has nothing in it.
+      if (res.status === 404 || res.status === 400) return found;
+      if (!res.ok) throw new Error(`Storage list failed (${res.status}).`);
+      const rows = (await res.json()) as { name: string; id: string | null }[];
+      for (const row of rows) {
+        const key = `${prefix}/${row.name}`;
+        if (row.id) found.push(key);
+        else found.push(...(await listFiles(key)));
+      }
+      if (rows.length < LIST_PAGE) return found;
+    }
+  }
+
   return {
     async put(key, data) {
       let res = await upload(key, data);
@@ -126,6 +155,19 @@ export function createSupabaseStorage({
       });
       if (!res.ok && res.status !== 404 && res.status !== 400) {
         throw new Error(`Storage delete failed (${res.status}).`);
+      }
+    },
+    async deleteFolder(prefix) {
+      objectPath(prefix);
+      const keys = await listFiles(prefix);
+      // The bulk delete takes a limited list, so work through it in pages.
+      for (let i = 0; i < keys.length; i += 500) {
+        const res = await doFetch(`${base}/object/${bucket}`, {
+          method: "DELETE",
+          headers: { ...headers, "Content-Type": "application/json" },
+          body: JSON.stringify({ prefixes: keys.slice(i, i + 500) }),
+        });
+        if (!res.ok) throw new Error(`Storage delete failed (${res.status}).`);
       }
     },
   };
@@ -155,4 +197,5 @@ export const storage: Storage = {
   put: (key, data) => resolve().put(key, data),
   get: (key) => resolve().get(key),
   delete: (key) => resolve().delete(key),
+  deleteFolder: (prefix) => resolve().deleteFolder(prefix),
 };

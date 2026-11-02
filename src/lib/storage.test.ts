@@ -95,6 +95,42 @@ describe("Supabase storage", () => {
   });
 });
 
+describe("Supabase deleteFolder", () => {
+  const opts = { url: "https://abc.supabase.co", serviceKey: "service-key" };
+  const json = (body: unknown, status = 200) => new Response(JSON.stringify(body), { status });
+
+  it("walks folders and deletes every file under the prefix", async () => {
+    const f = vi.fn(async (url: string, init: RequestInit) => {
+      if (url.endsWith("/object/list/documents")) {
+        const { prefix } = JSON.parse(init.body as string);
+        if (prefix === "docs")
+          return json([
+            { name: "a", id: null },
+            { name: "b", id: null },
+          ]);
+        if (prefix === "docs/a") return json([{ name: "one.pdf", id: "1" }]);
+        return json([{ name: "two.pdf", id: "2" }]);
+      }
+      return json([]);
+    });
+    await createSupabaseStorage({ ...opts, fetch: f as unknown as typeof fetch }).deleteFolder(
+      "docs",
+    );
+    const del = f.mock.calls.find(([, init]) => init.method === "DELETE")!;
+    expect(del[0]).toBe("https://abc.supabase.co/storage/v1/object/documents");
+    expect(JSON.parse(del[1].body as string).prefixes).toEqual([
+      "docs/a/one.pdf",
+      "docs/b/two.pdf",
+    ]);
+  });
+
+  it("is a no-op when the bucket doesn't exist yet", async () => {
+    const f = vi.fn().mockResolvedValue(json({ error: "Bucket not found" }, 404));
+    await createSupabaseStorage({ ...opts, fetch: f }).deleteFolder("docs");
+    expect(f).toHaveBeenCalledTimes(1);
+  });
+});
+
 describe("storageFromEnv", () => {
   it("uses Supabase when both variables are set", () => {
     const s = storageFromEnv({
