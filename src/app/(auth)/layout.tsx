@@ -2,6 +2,7 @@ import { CalendarCheck, Inbox, Network, Sprout } from "lucide-react";
 import Link from "next/link";
 
 import { BrandMark, Wordmark } from "@/components/shell/brand";
+import { Toaster } from "@/components/ui/toaster";
 
 const POINTS = [
   {
@@ -60,6 +61,7 @@ export default function AuthLayout({ children }: LayoutProps<"/">) {
           {children}
         </div>
       </main>
+      <Toaster />
     </div>
   );
 }

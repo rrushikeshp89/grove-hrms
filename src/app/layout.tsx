@@ -4,7 +4,6 @@ import { Fraunces, Geist, Geist_Mono } from "next/font/google";
 import { preferencesScript } from "@/lib/preferences";
 
 import "./globals.css";
-import { Providers } from "./providers";
 
 const geist = Geist({ variable: "--font-geist", subsets: ["latin"] });
 const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
@@ -50,9 +49,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       <head>
         <script dangerouslySetInnerHTML={{ __html: preferencesScript }} />
       </head>
-      <body>
-        <Providers>{children}</Providers>
-      </body>
+      <body>{children}</body>
     </html>
   );
 }

@@ -7,6 +7,8 @@ import { Skeleton } from "@/components/ui/primitives";
 import { DashboardSkeleton } from "@/components/ui/states";
 import { requireUser } from "@/server/session";
 
+import { Providers } from "../providers";
+
 /**
  * The session read happens inside a Suspense boundary (Cache Components
  * requires it), so the skeleton below streams instantly while we check who
@@ -14,9 +16,11 @@ import { requireUser } from "@/server/session";
  */
 export default function AppLayout({ children }: LayoutProps<"/">) {
   return (
-    <Suspense fallback={<ShellSkeleton />}>
-      <SignedInShell>{children}</SignedInShell>
-    </Suspense>
+    <Providers>
+      <Suspense fallback={<ShellSkeleton />}>
+        <SignedInShell>{children}</SignedInShell>
+      </Suspense>
+    </Providers>
   );
 }
 

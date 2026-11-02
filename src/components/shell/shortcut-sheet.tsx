@@ -5,7 +5,7 @@ import * as React from "react";
 import { Dialog, DialogBody, DialogContent, DialogHeader } from "@/components/ui/overlay";
 
 import { useActions, type ActionGroup } from "./actions-provider";
-import { Keycaps } from "./command-palette";
+import { Keycaps } from "./keycaps";
 
 const ORDER: ActionGroup[] = ["Help", "Navigate", "Actions", "Preferences"];
 

@@ -21,31 +21,12 @@ import { searchEverything } from "@/features/search/actions";
 import { Highlight } from "@/features/search/components/highlight";
 import type { HitKind, SearchHit } from "@/features/search/queries";
 import { commandScore } from "@/lib/command-filter";
-import { formatShortcut } from "@/lib/shortcuts";
 import { cn } from "@/lib/utils";
 
-import { useActions, useIsMac, type Action, type ActionGroup } from "./actions-provider";
+import { useActions, type Action, type ActionGroup } from "./actions-provider";
+import { Keycaps } from "./keycaps";
 
 const GROUP_ORDER: ActionGroup[] = ["Actions", "Navigate", "Preferences", "Help"];
-
-export function Keycaps({ spec, className }: { spec: string; className?: string }) {
-  const isMac = useIsMac();
-  const steps = formatShortcut(spec, isMac);
-  return (
-    <span className={cn("inline-flex items-center gap-1", className)}>
-      {steps.map((caps, i) => (
-        <React.Fragment key={i}>
-          {i > 0 && <span className="text-caption text-ink-subtle">then</span>}
-          <span className="inline-flex gap-0.5">
-            {caps.map((c) => (
-              <Kbd key={c}>{c}</Kbd>
-            ))}
-          </span>
-        </React.Fragment>
-      ))}
-    </span>
-  );
-}
 
 const KINDS: { kind: HitKind; heading: string; icon: LucideIcon | null }[] = [
   { kind: "person", heading: "People", icon: null },

@@ -1,6 +1,7 @@
 "use client";
 
 import { ArrowRight, Keyboard, Menu, Moon, PanelLeft, Rows3, Search } from "lucide-react";
+import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import * as React from "react";
@@ -23,14 +24,34 @@ import type { Role } from "@/lib/roles";
 
 import { useActions, useIsMac, useRegisterActions, type Action } from "./actions-provider";
 import { BrandMark, Wordmark } from "./brand";
-import { CommandPalette } from "./command-palette";
 import { ThemeMenu } from "./preference-controls";
 import { PreferenceSync } from "./preference-sync";
-import { ShortcutSheet } from "./shortcut-sheet";
 import { NavList, Sidebar } from "./sidebar";
 import { UserMenu, type ShellUser } from "./user-menu";
 
 export type { ShellUser };
+
+const CommandPalette = dynamic(() => import("./command-palette").then((m) => m.CommandPalette), {
+  ssr: false,
+});
+const ShortcutSheet = dynamic(() => import("./shortcut-sheet").then((m) => m.ShortcutSheet), {
+  ssr: false,
+});
+
+/** The palette and shortcut sheet load the first time they're asked for, not on every page. */
+function Overlays({ peopleSearch }: { peopleSearch: boolean }) {
+  const { paletteOpen, helpOpen } = useActions();
+  const [seen, setSeen] = React.useState({ palette: false, help: false });
+  if ((paletteOpen && !seen.palette) || (helpOpen && !seen.help)) {
+    setSeen({ palette: seen.palette || paletteOpen, help: seen.help || helpOpen });
+  }
+  return (
+    <>
+      {seen.palette && <CommandPalette peopleSearch={peopleSearch} />}
+      {seen.help && <ShortcutSheet />}
+    </>
+  );
+}
 
 function useShellActions(groups: NavGroup[], role: Role | null) {
   const router = useRouter();
@@ -255,8 +276,7 @@ export function AppShell({
         </SheetContent>
       </Sheet>
 
-      <CommandPalette peopleSearch={variant === "app"} />
-      <ShortcutSheet />
+      <Overlays peopleSearch={variant === "app"} />
       {user && <PreferenceSync user={user} />}
     </div>
   );
