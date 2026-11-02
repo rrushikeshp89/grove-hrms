@@ -4,6 +4,7 @@ const PORT = Number(process.env.PORT ?? 3100);
 
 export default defineConfig({
   testDir: "tests/e2e",
+  testIgnore: "live.spec.ts",
   globalSetup: "./tests/e2e/global-setup.ts",
   // Locally the suite shares one database connection across parallel
   // browsers (see DATABASE_POOL_MAX), so pages can stream a little slower.

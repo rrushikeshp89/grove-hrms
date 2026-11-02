@@ -7,10 +7,12 @@ import {
   PointerSensor,
   TouchSensor,
   closestCorners,
+  pointerWithin,
   useDroppable,
   useSensor,
   useSensors,
   type Announcements,
+  type CollisionDetection,
   type DragEndEvent,
   type DragOverEvent,
   type DragStartEvent,
@@ -74,6 +76,19 @@ function group(candidates: BoardCandidate[]): Columns {
 
 const isStage = (id: UniqueIdentifier): id is PipelineStage =>
   (PIPELINE as readonly UniqueIdentifier[]).includes(id);
+
+/**
+ * A drop goes where the pointer is, preferring a card over its column. The
+ * dragged card is wider than the gap under it, so measuring from its corners
+ * can pick the next column along. Keyboard drags have no pointer and keep the
+ * corner check, which `boardKeyboard` relies on.
+ */
+const boardCollision: CollisionDetection = (args) => {
+  const under = pointerWithin(args);
+  if (under.length === 0) return closestCorners(args);
+  const card = under.find((hit) => !isStage(hit.id));
+  return card ? [card] : under;
+};
 
 /**
  * Arrow keys while a card is lifted. Up and down walk through the cards;
@@ -433,7 +448,7 @@ export function Board({
       <DndContext
         id="pipeline"
         sensors={sensors}
-        collisionDetection={closestCorners}
+        collisionDetection={boardCollision}
         accessibility={{
           announcements,
           screenReaderInstructions: {
@@ -453,7 +468,7 @@ export function Board({
           role="region"
           aria-label="Hiring pipeline"
           tabIndex={0}
-          className="-mx-4 flex snap-x gap-3 relative overflow-x-auto px-4 pb-2 outline-none focus-visible:ring-2 focus-visible:ring-accent sm:mx-0 sm:px-0"
+          className="relative -mx-4 flex snap-x gap-3 overflow-x-auto px-4 pb-2 outline-none focus-visible:ring-2 focus-visible:ring-accent sm:mx-0 sm:px-0"
         >
           {PIPELINE.map((stage) => (
             <Column key={stage} stage={stage} candidates={columns[stage]} canHire={canHire}>

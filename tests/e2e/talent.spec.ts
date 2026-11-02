@@ -76,6 +76,27 @@ test.describe("hiring and lifecycle", () => {
     await expect(column(page, "Screening").getByRole("link", { name })).toBeVisible();
   });
 
+  test("a mouse drop lands in the column under the pointer", async ({ page }) => {
+    await signInAs(page, "HR_MANAGER");
+    await openRole(page, "Senior Backend Engineer");
+    const name = await firstName(column(page, "Applied"));
+    const handle = page.getByRole("button", { name: `Move ${name}` });
+    await expect(async () => {
+      const from = (await handle.boundingBox())!;
+      const target = (await column(page, "Interview").boundingBox())!;
+      await page.mouse.move(from.x + from.width / 2, from.y + from.height / 2);
+      await page.mouse.down();
+      // Aim for the middle of the column: the card itself reaches into the next one.
+      await page.mouse.move(target.x + target.width / 2, target.y + 80, { steps: 12 });
+      await page.waitForTimeout(200);
+      await page.mouse.up();
+      await expect(column(page, "Interview").getByRole("link", { name })).toBeVisible({
+        timeout: 2000,
+      });
+    }).toPass({ timeout: 15_000 });
+    await page.reload();
+    await expect(column(page, "Interview").getByRole("link", { name })).toBeVisible();
+  });
   test("passing on someone needs a reason, and they can come back", async ({ page }) => {
     await signInAs(page, "HR_MANAGER");
     await openRole(page, "Senior Backend Engineer");
