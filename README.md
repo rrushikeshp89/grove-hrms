@@ -1,30 +1,31 @@
 <div align="center">
 
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/screenshots/home-dark.png">
-  <img src="docs/screenshots/home.png" alt="Grove's home screen for an employee: a clock-in button, leave balances, this month's attendance and the latest announcements" width="880">
-</picture>
+<img src="src/app/icon.svg" alt="Grove logo: a white sprout on a green rounded square" width="96" height="96">
 
 # Grove
 
 **A human resource management system people actually enjoy using.**<br>
 Calm, warm and quietly delightful, built with production-grade engineering.
 
-### [Open the live demo](https://grove-hrms.vercel.app)
+<a href="https://grove-hrms.vercel.app"><img src="https://img.shields.io/badge/Open_the_live_demo-1F5A47?style=for-the-badge&logo=vercel&logoColor=white" alt="Open the live demo" height="44"></a>
+&nbsp;
+<a href="https://grove-hrms.vercel.app/design"><img src="https://img.shields.io/badge/See_the_design_system-3D3A36?style=for-the-badge&logo=storybook&logoColor=white" alt="See the design system" height="44"></a>
 
-One click signs you in. No account needed.
+One click signs you in as any of four roles. No account, no setup.<br>
+Live at **<https://grove-hrms.vercel.app>**
 
 [![CI status](https://github.com/rrushikeshp89/grove-hrms/actions/workflows/ci.yml/badge.svg)](https://github.com/rrushikeshp89/grove-hrms/actions/workflows/ci.yml)
-[![Live demo](https://img.shields.io/badge/live_demo-grove--hrms.vercel.app-1F5A47?style=flat-square&logo=vercel&logoColor=white)](https://grove-hrms.vercel.app)
+[![Deployed on Vercel](https://img.shields.io/badge/deployed_on-Vercel-000000?style=flat-square&logo=vercel&logoColor=white)](https://grove-hrms.vercel.app)
 ![369 unit tests](https://img.shields.io/badge/unit_tests-369-2E7D32?style=flat-square)
+![420 end-to-end tests](https://img.shields.io/badge/end--to--end_tests-420-15803D?style=flat-square&logo=playwright&logoColor=white)
 ![0 serious axe violations](https://img.shields.io/badge/axe-0_serious_violations-7B2D8E?style=flat-square)
-![Lighthouse accessibility 100](https://img.shields.io/badge/Lighthouse_a11y-100-F44B21?style=flat-square&logo=lighthouse&logoColor=white)
-![Status: all 9 phases complete](https://img.shields.io/badge/status-9_of_9_phases_complete-1F5A47?style=flat-square)
+![Lighthouse accessibility 100](https://img.shields.io/badge/Lighthouse_a11y-100-C2410C?style=flat-square&logo=lighthouse&logoColor=white)
 
 [Try it](#try-it-in-two-minutes) ·
+[See it move](#see-it-move) ·
 [What it does](#what-it-does) ·
 [Built with](#built-with) ·
-[How it fits together](#how-it-fits-together) ·
+[How it works](#how-it-fits-together) ·
 [Quality](#quality) ·
 [Run it](#run-it-yourself) ·
 [Docs](#project-docs)
@@ -33,73 +34,18 @@ One click signs you in. No account needed.
 
 ---
 
-## Built with
+## At a glance
 
-Every technology in the project, with the version it actually uses.
+Grove is a complete HR platform for a company of about 100 people: everything from clocking in to running payroll, with a separate experience for employees, managers, HR and admins.
 
-<details open>
-<summary><strong>Front end and design</strong></summary>
-<br>
-
-![Next.js 16](https://img.shields.io/badge/Next.js_16-000000?style=for-the-badge&logo=nextdotjs&logoColor=white)
-![React 19](https://img.shields.io/badge/React_19-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
-![TypeScript strict](https://img.shields.io/badge/TypeScript_strict-3178C6?style=for-the-badge&logo=typescript&logoColor=white)
-![Tailwind CSS 4](https://img.shields.io/badge/Tailwind_CSS_4-0E7490?style=for-the-badge&logo=tailwindcss&logoColor=white)
-![Radix UI](https://img.shields.io/badge/Radix_UI-161618?style=for-the-badge&logo=radixui&logoColor=white)
-![Motion 14](https://img.shields.io/badge/Motion_14-0055FF?style=for-the-badge&logo=framer&logoColor=white)
-![React Hook Form 7](https://img.shields.io/badge/React_Hook_Form_7-EC5990?style=for-the-badge&logo=reacthookform&logoColor=white)
-![Zod 4](https://img.shields.io/badge/Zod_4-3E67B1?style=for-the-badge&logo=zod&logoColor=white)
-![TanStack Table 9](https://img.shields.io/badge/TanStack_Table_9-B91C1C?style=for-the-badge)
-![Recharts 3](https://img.shields.io/badge/Recharts_3-6D28D9?style=for-the-badge)
-![Tiptap 3](https://img.shields.io/badge/Tiptap_3-0F0F0F?style=for-the-badge)
-![dnd kit](https://img.shields.io/badge/dnd_kit-1E293B?style=for-the-badge)
-![cmdk](https://img.shields.io/badge/cmdk-334155?style=for-the-badge)
-![Lucide icons](https://img.shields.io/badge/Lucide-0F766E?style=for-the-badge&logo=lucide&logoColor=white)
-
-</details>
-
-<details open>
-<summary><strong>Server, data and security</strong></summary>
-<br>
-
-![Server Components and Server Actions](https://img.shields.io/badge/Server_Components_%2B_Actions-000000?style=for-the-badge&logo=nextdotjs&logoColor=white)
-![Cache Components](https://img.shields.io/badge/Cache_Components-000000?style=for-the-badge&logo=nextdotjs&logoColor=white)
-![Prisma 7](https://img.shields.io/badge/Prisma_7-2D3748?style=for-the-badge&logo=prisma&logoColor=white)
-![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169E1?style=for-the-badge&logo=postgresql&logoColor=white)
-![Supabase](https://img.shields.io/badge/Supabase-047857?style=for-the-badge&logo=supabase&logoColor=white)
-![Better Auth](https://img.shields.io/badge/Better_Auth-111827?style=for-the-badge)
-![Role-based access control](https://img.shields.io/badge/RBAC-scoped_permissions-1F5A47?style=for-the-badge)
-![Audit logging](https://img.shields.io/badge/Audit_log-every_change-1F5A47?style=for-the-badge)
-![React PDF](https://img.shields.io/badge/React_PDF-payslips_%26_reports-B91C1C?style=for-the-badge)
-![PapaParse](https://img.shields.io/badge/PapaParse-CSV_import_%26_export-475569?style=for-the-badge)
-![date-fns](https://img.shields.io/badge/date--fns-4-770C56?style=for-the-badge&logo=date-fns&logoColor=white)
-
-</details>
-
-<details open>
-<summary><strong>Quality and accessibility</strong></summary>
-<br>
-
-![Vitest 4](https://img.shields.io/badge/Vitest_4-4D7C0F?style=for-the-badge&logo=vitest&logoColor=white)
-![Playwright](https://img.shields.io/badge/Playwright-15803D?style=for-the-badge&logo=playwright&logoColor=white)
-![axe-core](https://img.shields.io/badge/axe--core-7B2D8E?style=for-the-badge)
-![WCAG 2.1 AA](https://img.shields.io/badge/WCAG_2.1_AA-1D4ED8?style=for-the-badge)
-![Lighthouse](https://img.shields.io/badge/Lighthouse-C2410C?style=for-the-badge&logo=lighthouse&logoColor=white)
-![ESLint 9](https://img.shields.io/badge/ESLint_9-4B32C3?style=for-the-badge&logo=eslint&logoColor=white)
-![Prettier 3](https://img.shields.io/badge/Prettier_3-B45309?style=for-the-badge&logo=prettier&logoColor=white)
-
-</details>
-
-<details open>
-<summary><strong>Delivery</strong></summary>
-<br>
-
-![Vercel](https://img.shields.io/badge/Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white)
-![GitHub Actions](https://img.shields.io/badge/GitHub_Actions-2088FF?style=for-the-badge&logo=githubactions&logoColor=white)
-![Node.js 22](https://img.shields.io/badge/Node.js_22-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)
-![npm](https://img.shields.io/badge/npm-CB3837?style=for-the-badge&logo=npm&logoColor=white)
-
-</details>
+|                    |                                                                                          |
+| ------------------ | ---------------------------------------------------------------------------------------- |
+| **For employees**  | Clock in, request leave, see payslips, goals and company news                            |
+| **For managers**   | Approve requests, see the team's day, run hiring and reviews                             |
+| **For HR**         | People records, payroll runs, onboarding, analytics, CSV import and export               |
+| **For admins**     | Audit log of every change, company settings, roles                                       |
+| **Under the hood** | 45 database tables, 23 feature modules, 4 roles with scoped permissions                  |
+| **Proof it works** | 369 unit tests, 420 browser tests, every screen scanned for accessibility in both themes |
 
 ---
 
@@ -107,12 +53,12 @@ Every technology in the project, with the version it actually uses.
 
 [Open Grove](https://grove-hrms.vercel.app) and sign in with one click as any of four people at **Northwind Grove**, a fictional Bengaluru company of about 100 employees. The password for every account is `grove-demo-2026`, and the account menu switches between the demo roles without signing out.
 
-| Sign in as       | Who                                          | Email                               | Try this                                                                                                                                                |
-| ---------------- | -------------------------------------------- | ----------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Employee**     | Arjun Mehta, Senior Frontend Engineer        | `arjun.mehta@northwindgrove.in`     | Press and hold **Clock in** on Home. Press `n` then `l` to start a leave request. Press `/` and search "remote".                                        |
-| **Team manager** | Priya Raman, Engineering Manager (8 reports) | `priya.raman@northwindgrove.in`     | Open **Approvals**, approve one request and decline another. Drag a candidate across the **Hiring** board.                                              |
-| **HR manager**   | Rahul Deshpande, Head of People              | `rahul.deshpande@northwindgrove.in` | Open **Analytics** and switch a chart to its table view. Import people from a CSV at `/people/import`.                                                  |
-| **Super admin**  | Aditya Banerjee, COO                         | `aditya.banerjee@northwindgrove.in` | Open the **Audit log** and expand a row to see before and after. Open **Payroll** and see the four-eyes rule: whoever prepares a run can't finalize it. |
+| Sign in as       | Who                                   | Email                               | Try this                                                                                                                                                |
+| ---------------- | ------------------------------------- | ----------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Employee**     | Arjun Mehta, Senior Frontend Engineer | `arjun.mehta@northwindgrove.in`     | Press and hold **Clock in** on Home. Press `n` then `l` to start a leave request. Press `/` and search "remote".                                        |
+| **Team manager** | Priya Raman, Engineering Manager      | `priya.raman@northwindgrove.in`     | Open **Approvals**, approve one request and decline another. Drag a candidate across the **Hiring** board.                                              |
+| **HR manager**   | Rahul Deshpande, Head of People       | `rahul.deshpande@northwindgrove.in` | Open **Analytics** and switch a chart to its table view. Import people from a CSV at `/people/import`.                                                  |
+| **Super admin**  | Aditya Banerjee, COO                  | `aditya.banerjee@northwindgrove.in` | Open the **Audit log** and expand a row to see before and after. Open **Payroll** and see the four-eyes rule: whoever prepares a run can't finalize it. |
 
 > [!TIP]
 > Everything is also reachable from the keyboard. Press `?` anywhere to see every shortcut, or `Ctrl K` (`Cmd K` on a Mac) for the command palette.
@@ -162,7 +108,7 @@ Open any group to see what is built. Everything below is implemented and covered
 <summary><strong>People and organization</strong>: directory, profiles, org chart, departments</summary>
 <br>
 
-- **Directory.** Search by name, title, team, skill or employee ID. Filter by department, location, status and contract. Grid and table views, and the whole view lives in the URL so it can be shared or bookmarked. HR can add employees, with codes issued in sequence.
+- **Directory.** Search by name, title, team, skill or employee ID. Filter by department, location, status and contract. Grid and table views, 24 cards at a time, and the whole view lives in the URL so it can be shared or bookmarked. HR can add employees, with codes issued in sequence.
 - **Profiles.** Overview, Team, Personal and Activity tabs, each section edited in place. You edit your own bio, skills and private details. Your managers can read your private details but not change them. HR edits job details and can't create a reporting loop. A change history is built from the audit log.
 - **Org chart.** Built from manager relationships, with pan, zoom, collapsible teams, search, and keyboard navigation that follows the standard tree pattern.
 - **Departments.** Heads, headcount and job titles, with create, edit and delete for HR. Nothing still in use can be deleted.
@@ -253,6 +199,76 @@ Shortcuts you don't have permission for don't appear.
 - Motion explains change: springs for movement, reduced motion respected everywhere, and celebrations only for real milestones.
 - Every page has a skeleton shaped like its content, an error state, and an empty state that says what to do next.
 - A public showcase of the system lives at `/design`.
+
+</details>
+
+---
+
+## Built with
+
+Every technology in the project, with the version it actually uses. Each ribbon links to that tool's site.
+
+<details open>
+<summary><strong>Front end and design</strong></summary>
+<br>
+
+[![Next.js 16](https://img.shields.io/badge/Next.js_16-000000?style=for-the-badge&logo=nextdotjs&logoColor=white)](https://nextjs.org)
+[![React 19](https://img.shields.io/badge/React_19-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)](https://react.dev)
+[![TypeScript strict](https://img.shields.io/badge/TypeScript_strict-3178C6?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org)
+[![Tailwind CSS 4](https://img.shields.io/badge/Tailwind_CSS_4-0E7490?style=for-the-badge&logo=tailwindcss&logoColor=white)](https://tailwindcss.com)
+[![Radix UI](https://img.shields.io/badge/Radix_UI-161618?style=for-the-badge&logo=radixui&logoColor=white)](https://www.radix-ui.com)
+[![Motion 14](https://img.shields.io/badge/Motion_14-0055FF?style=for-the-badge&logo=framer&logoColor=white)](https://motion.dev)
+[![React Hook Form 7](https://img.shields.io/badge/React_Hook_Form_7-EC5990?style=for-the-badge&logo=reacthookform&logoColor=white)](https://react-hook-form.com)
+[![Zod 4](https://img.shields.io/badge/Zod_4-3E67B1?style=for-the-badge&logo=zod&logoColor=white)](https://zod.dev)
+[![TanStack Table 9](https://img.shields.io/badge/TanStack_Table_9-B91C1C?style=for-the-badge)](https://tanstack.com/table)
+[![Recharts 3](https://img.shields.io/badge/Recharts_3-6D28D9?style=for-the-badge)](https://recharts.org)
+[![Tiptap 3](https://img.shields.io/badge/Tiptap_3-0F0F0F?style=for-the-badge)](https://tiptap.dev)
+[![dnd kit](https://img.shields.io/badge/dnd_kit-1E293B?style=for-the-badge)](https://dndkit.com)
+[![cmdk](https://img.shields.io/badge/cmdk-334155?style=for-the-badge)](https://cmdk.paco.me)
+[![Lucide icons](https://img.shields.io/badge/Lucide-0F766E?style=for-the-badge&logo=lucide&logoColor=white)](https://lucide.dev)
+
+</details>
+
+<details open>
+<summary><strong>Server, data and security</strong></summary>
+<br>
+
+[![Server Components and Server Actions](https://img.shields.io/badge/Server_Components_%2B_Actions-000000?style=for-the-badge&logo=nextdotjs&logoColor=white)](https://nextjs.org/docs/app/getting-started/server-and-client-components)
+[![Cache Components](https://img.shields.io/badge/Cache_Components-000000?style=for-the-badge&logo=nextdotjs&logoColor=white)](https://nextjs.org/docs/app/getting-started/caching)
+[![Prisma 7](https://img.shields.io/badge/Prisma_7-2D3748?style=for-the-badge&logo=prisma&logoColor=white)](https://www.prisma.io)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169E1?style=for-the-badge&logo=postgresql&logoColor=white)](https://www.postgresql.org)
+[![Supabase](https://img.shields.io/badge/Supabase-047857?style=for-the-badge&logo=supabase&logoColor=white)](https://supabase.com)
+[![Better Auth](https://img.shields.io/badge/Better_Auth-111827?style=for-the-badge)](https://www.better-auth.com)
+![Role-based access control](https://img.shields.io/badge/RBAC-scoped_permissions-1F5A47?style=for-the-badge)
+![Audit logging](https://img.shields.io/badge/Audit_log-every_change-1F5A47?style=for-the-badge)
+[![React PDF](https://img.shields.io/badge/React_PDF-payslips_%26_reports-B91C1C?style=for-the-badge)](https://react-pdf.org)
+[![PapaParse](https://img.shields.io/badge/PapaParse-CSV_import_%26_export-475569?style=for-the-badge)](https://www.papaparse.com)
+[![date-fns](https://img.shields.io/badge/date--fns-4-770C56?style=for-the-badge&logo=date-fns&logoColor=white)](https://date-fns.org)
+
+</details>
+
+<details open>
+<summary><strong>Quality and accessibility</strong></summary>
+<br>
+
+[![Vitest 4](https://img.shields.io/badge/Vitest_4-4D7C0F?style=for-the-badge&logo=vitest&logoColor=white)](https://vitest.dev)
+[![Playwright](https://img.shields.io/badge/Playwright-15803D?style=for-the-badge&logo=playwright&logoColor=white)](https://playwright.dev)
+[![axe-core](https://img.shields.io/badge/axe--core-7B2D8E?style=for-the-badge)](https://github.com/dequelabs/axe-core)
+[![WCAG 2.1 AA](https://img.shields.io/badge/WCAG_2.1_AA-1D4ED8?style=for-the-badge)](https://www.w3.org/TR/WCAG21/)
+[![Lighthouse](https://img.shields.io/badge/Lighthouse-C2410C?style=for-the-badge&logo=lighthouse&logoColor=white)](https://developer.chrome.com/docs/lighthouse)
+[![ESLint 9](https://img.shields.io/badge/ESLint_9-4B32C3?style=for-the-badge&logo=eslint&logoColor=white)](https://eslint.org)
+[![Prettier 3](https://img.shields.io/badge/Prettier_3-B45309?style=for-the-badge&logo=prettier&logoColor=white)](https://prettier.io)
+
+</details>
+
+<details open>
+<summary><strong>Delivery</strong></summary>
+<br>
+
+[![Vercel](https://img.shields.io/badge/Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white)](https://vercel.com)
+[![GitHub Actions](https://img.shields.io/badge/GitHub_Actions-2088FF?style=for-the-badge&logo=githubactions&logoColor=white)](https://github.com/features/actions)
+[![Node.js 22](https://img.shields.io/badge/Node.js_22-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)](https://nodejs.org)
+[![npm](https://img.shields.io/badge/npm-CB3837?style=for-the-badge&logo=npm&logoColor=white)](https://www.npmjs.com)
 
 </details>
 
@@ -357,7 +373,7 @@ sequenceDiagram
   </tr>
   <tr>
     <td><strong>End-to-end suite</strong></td>
-    <td>Every flow on desktop and a Pixel 7, with axe accessibility scans in both themes.</td>
+    <td>420 tests across every flow on desktop and a Pixel 7, with axe accessibility scans in both themes.</td>
   </tr>
   <tr>
     <td><strong>Every-screen sweep</strong></td>
@@ -516,6 +532,6 @@ docs/                    plan, deployment guide and screenshots
 
 <div align="center">
 
-<sub>Grove is a portfolio project. Northwind Grove and everyone in it are fictional.</sub>
+<sub>Grove is a portfolio project by <a href="https://github.com/rrushikeshp89">rrushikeshp89</a>. Northwind Grove and everyone in it are fictional.</sub>
 
 </div>
