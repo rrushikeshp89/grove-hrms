@@ -18,8 +18,12 @@ export type Storage = {
   deleteFolder(prefix: string): Promise<void>;
 };
 
+// The upload folder is chosen at runtime, so the bundler can't see which files it
+// holds. The ignore comments stop it tracing (and shipping) the whole project.
 export const uploadRoot = () =>
-  path.resolve(process.env.UPLOAD_DIR ?? path.join(process.cwd(), ".uploads"));
+  path.resolve(
+    /*turbopackIgnore: true*/ process.env.UPLOAD_DIR ?? path.join(process.cwd(), ".uploads"),
+  );
 
 /** Resolves a key inside the upload folder, refusing anything that escapes it. */
 function resolveKey(key: string) {
@@ -38,7 +42,7 @@ export function createLocalStorage(): Storage {
     },
     async get(key) {
       try {
-        return await readFile(resolveKey(key));
+        return await readFile(/*turbopackIgnore: true*/ resolveKey(key));
       } catch (e) {
         if ((e as NodeJS.ErrnoException).code === "ENOENT") return null;
         throw e;
