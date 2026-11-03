@@ -7,15 +7,15 @@
 **A human resource management system people actually enjoy using.**<br>
 Calm, warm and quietly delightful, built with production-grade engineering.
 
-<a href="https://grove-hrms.vercel.app"><img src="https://img.shields.io/badge/Open_the_live_demo-1F5A47?style=for-the-badge&logo=vercel&logoColor=white" alt="Open the live demo" height="44"></a>
+<a href="https://hrms.fluentopsai.com"><img src="https://img.shields.io/badge/Open_the_live_demo-1F5A47?style=for-the-badge&logo=vercel&logoColor=white" alt="Open the live demo" height="44"></a>
 &nbsp;
-<a href="https://grove-hrms.vercel.app/design"><img src="https://img.shields.io/badge/See_the_design_system-3D3A36?style=for-the-badge&logo=storybook&logoColor=white" alt="See the design system" height="44"></a>
+<a href="https://hrms.fluentopsai.com/design"><img src="https://img.shields.io/badge/See_the_design_system-3D3A36?style=for-the-badge&logo=storybook&logoColor=white" alt="See the design system" height="44"></a>
 
 One click signs you in as any of four roles. No account, no setup.<br>
-Live at **<https://grove-hrms.vercel.app>**
+Live at **<https://hrms.fluentopsai.com>**
 
 [![CI status](https://github.com/rrushikeshp89/grove-hrms/actions/workflows/ci.yml/badge.svg)](https://github.com/rrushikeshp89/grove-hrms/actions/workflows/ci.yml)
-[![Deployed on Vercel](https://img.shields.io/badge/deployed_on-Vercel-000000?style=flat-square&logo=vercel&logoColor=white)](https://grove-hrms.vercel.app)
+[![Deployed on Vercel](https://img.shields.io/badge/deployed_on-Vercel-000000?style=flat-square&logo=vercel&logoColor=white)](https://hrms.fluentopsai.com)
 ![369 unit tests](https://img.shields.io/badge/unit_tests-369-2E7D32?style=flat-square)
 ![420 end-to-end tests](https://img.shields.io/badge/end--to--end_tests-420-15803D?style=flat-square&logo=playwright&logoColor=white)
 ![0 serious axe violations](https://img.shields.io/badge/axe-0_serious_violations-7B2D8E?style=flat-square)
@@ -51,7 +51,7 @@ Grove is a complete HR platform for a company of about 100 people: everything fr
 
 ## Try it in two minutes
 
-[Open Grove](https://grove-hrms.vercel.app) and sign in with one click as any of four people at **Northwind Grove**, a fictional Bengaluru company of about 100 employees. The password for every account is `grove-demo-2026`, and the account menu switches between the demo roles without signing out.
+[Open Grove](https://hrms.fluentopsai.com) and sign in with one click as any of four people at **Northwind Grove**, a fictional Bengaluru company of about 100 employees. The password for every account is `grove-demo-2026`, and the account menu switches between the demo roles without signing out.
 
 | Sign in as       | Who                                   | Email                               | Try this                                                                                                                                                |
 | ---------------- | ------------------------------------- | ----------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
