@@ -187,6 +187,14 @@ export async function seedTime(
   >();
   const personLedger = new Map<string, (LedgerEntry & { typeId: string; year: number })[]>();
 
+  // Demo accounts stay free today and tomorrow, so anyone trying the demo can clock
+  // in. Tomorrow too, because CI and the nightly reseed can run either side of
+  // midnight. The hold blocks overlapping leave and adds nothing else.
+  for (const p of people) {
+    if (!p.isDemo) continue;
+    booked.set(p.id, [{ start: today, end: addDays(today, 1), status: "HELD", parts: [] }]);
+  }
+
   function addRequest(
     p: Person,
     t: LeaveTypeRow,
